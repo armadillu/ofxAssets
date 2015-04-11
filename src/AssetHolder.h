@@ -12,7 +12,7 @@
 #include "ofMain.h"
 #include "ofxDownloadCentral.h"
 
-#define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return;}
+#define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return "error!";}
 const string assetLogFile = "logs/assetStatus.log";
 
 //make your object subclass AssetHolder, to handle gathering of remote assets.
