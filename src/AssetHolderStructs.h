@@ -71,8 +71,15 @@ struct AssetDownloadPolicy : public AssetPolicy{
 struct AssetStats{
 	int numAssets;
 	int numMissingFile;
-	int numWrongSha1;
+	int numSha1Missmatch;
+	int numFileTooSmall;
 	int numOK;
+	int numDownloadFailed;
+	int numNoSha1Supplied;
+	AssetStats(){
+		numAssets = numMissingFile = numSha1Missmatch = numOK = 0;
+		numDownloadFailed = numFileTooSmall = numNoSha1Supplied = 0;
+	}
 };
 
 struct AssetSpecs{
@@ -114,7 +121,7 @@ struct AssetDescriptor{
 
 	string fileName;
 	string extension;
-	string absolutePath; //this is the "unique key" of all assets, must be unique for asset
+	string absolutePath; //this is the "unique key" of all assets, must be unique per asset
 
 	string url;
 	string sha1;

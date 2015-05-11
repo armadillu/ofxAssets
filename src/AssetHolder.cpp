@@ -26,6 +26,9 @@ void AssetHolder::setup(const string& directoryForAssets_, AssetUsagePolicy asse
 	directoryForAssets = ofFilePath::addTrailingSlash(directoryForAssets_);
 	assetOkPolicy = assetOkPolicy_;
 	downloadPolicy = downloadPolicy_;
+
+	ofSetLogLevel("ofxBatchDownloader", OF_LOG_SILENT);
+	ofSetLogLevel("ofxSimpleHttp", OF_LOG_SILENT);
 }
 
 
@@ -84,6 +87,29 @@ bool AssetHolder::areAllAssetsOK(){
 	return numOK == assets.size();
 }
 
+AssetHolder::AssetStats AssetHolder::getAssetStats(){
+
+	AssetStats s;
+	s.numAssets = assets.size();
+	map<string, AssetDescriptor>::iterator it = assets.begin();
+	while(it != assets.end()){
+		AssetDescriptor & ad = it->second;
+		if(ad.status.checked){
+			if(ad.status.fileTooSmall) s.numFileTooSmall++;
+			if(ad.status.sha1Match) s.numOK++;
+			if(ad.status.downloaded && !ad.status.downloadOK) s.numDownloadFailed++;
+			if(ad.status.sha1Match) s.numOK++;
+			if(!ad.status.sha1Supplied) s.numNoSha1Supplied++;
+			if(!ad.status.localFileExists) s.numMissingFile++;
+			if(ad.status.downloaded && !ad.status.sha1Match) s.numSha1Missmatch++;
+		}else{
+			ofLogError("AssetHolder") << "Requesting AssetsStats before calling updateLocalAssetsStatus()! dont do that!";
+		}
+		++it;
+	}
+	return s;
+}
+
 void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 
 	int n = report.responses.size();
@@ -100,6 +126,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 				d.status.sha1Match = true;
 			}else{
 				d.status.sha1Match = false;
+				ofLogError("AssetHolder") << "asset downloaded but SHA1 missmatch! [" << d.url << "] expected SHA1: " << d.sha1;
 			}
 		}else{
 			ofLogError("AssetHolder") << "asset downloaded but I dont know about it !?";
@@ -111,6 +138,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 void AssetHolder::updateLocalAssetsStatus(){
 
 	map<string, AssetDescriptor>::iterator it = assets.begin();
+
 	while( it != assets.end()){
 		checkLocalAssetStatus(it->second);
 		++it;

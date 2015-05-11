@@ -49,6 +49,19 @@ AssetHolder::getAssetDescForURL(const string& url){
 }
 
 
+string AssetHolder::toString(AssetStats &s){
+
+	string msg = "NumAssets: " + ofToString(s.numAssets) +
+	" NumMissingLocalFile: " + ofToString(s.numMissingFile) +
+	" numSha1Missmatch: " + ofToString(s.numSha1Missmatch) +
+	" NumFileTooSmall: " + ofToString(s.numFileTooSmall) +
+	" NumOK: " + ofToString(s.numOK) +
+	" NumDownloadFailed: " + ofToString(s.numDownloadFailed) +
+	" NumNoSha1Supplied: " + ofToString(s.numNoSha1Supplied);
+	return msg;
+}
+
+
 AssetHolder::AssetDescriptor&
 AssetHolder::getAssetDescAtIndex(int i){
 

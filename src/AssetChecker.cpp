@@ -102,7 +102,9 @@ float AssetChecker::getProgress(){
 }
 
 void AssetChecker::onAssetCheckThreadFinished(bool &){
-	ofLogNotice("AssetChecker") << "AssetCheckThreadFinished!";
+	mutex.lock();
+	ofLogNotice("AssetChecker") << "AssetCheck Thread Finished (" << numThreadsCompleted << "/" << (int)threads.size() << ")";
+	mutex.unlock();
 	numThreadsCompleted++;
 }
 

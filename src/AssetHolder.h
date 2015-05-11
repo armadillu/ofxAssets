@@ -15,9 +15,12 @@
 #define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return "error!";}
 const string assetLogFile = "logs/assetStatus.log";
 
+
+
+
+
 //make your object subclass AssetHolder, to handle gathering of remote assets.
 class AssetHolder{
-
 
 public:
 
@@ -55,6 +58,9 @@ public:
 
 	AssetStats getAssetStats();
 
+
+	static string toString(AssetStats &s);
+
 	// Actions //
 
 	void updateLocalAssetsStatus(); //call this to check local filesystem and decide what is missing / needed
@@ -74,7 +80,8 @@ private:
 	void checkLocalAssetStatus(AssetDescriptor & d);
 
 	//the actual assets
-	map<string, AssetDescriptor> assets; //index by absolutePath
+	map<string, AssetDescriptor> assets; 	//index by absolutePath
+											//2 assets cant have the same abs path!
 
 	//policies
 	AssetUsagePolicy localAssetOkPolicy;

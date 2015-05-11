@@ -53,6 +53,7 @@ protected:
 	int numThreadsCompleted;
 	vector<AssetCheckThread*> threads;
 	vector<AssetHolder*> assetObjects;
+	ofMutex mutex;
 };
 
 #endif /* defined(__BaseApp__AssetChecker__) */
