@@ -65,6 +65,7 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 
 	map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
 	if(it == assets.end()){ //we dont have this one
+		ad.location = LOCAL;
 		ad.extension = ofFilePath::getFileExt(localPath);
 		ad.type = typeFromExtension(ad.extension);
 		ad.specs = spec;
@@ -214,9 +215,11 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 
 			AssetDescriptor & d = it->second;
 
-			if(shouldDownload(d)){
-				urls.push_back(d.url);
-				sha1s.push_back(d.sha1);
+			if(d.location == REMOTE){
+				if(shouldDownload(d)){
+					urls.push_back(d.url);
+					sha1s.push_back(d.sha1);
+				}
 			}
 			++it;
 		}
