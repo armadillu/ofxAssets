@@ -121,9 +121,15 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 
 		if (remoteAssetExistsInDB(r.url)){
 
+			isDownloadingData = false;
+
 			AssetDescriptor & d = getAssetDescForURL(r.url);
 			d.status.downloaded = true;
 			d.status.downloadOK = r.ok;
+			if(d.status.downloadOK){
+				d.status.localFileExists = true;
+				d.status.fileTooSmall = r.downloadedBytes < minimumFileSize;
+			}
 			if (r.expectedChecksum == d.sha1 && r.checksumOK){
 				d.status.sha1Match = true;
 			}else{
