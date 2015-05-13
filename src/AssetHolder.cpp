@@ -52,6 +52,7 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
 	}
+	return ad.absolutePath;
 };
 
 
@@ -72,6 +73,7 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
 	}
+	return ad.absolutePath;
 }
 
 bool AssetHolder::areAllAssetsOK(){
@@ -177,10 +179,13 @@ void AssetHolder::checkLocalAssetStatus(AssetDescriptor & d){
 				}
 			}
 		}else{ //no sha1 supplied!
-			d.status.sha1Supplied = false;
 			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' (sha1 not supplied) 🌚");
+			d.status.sha1Supplied = false;
+			if (f.getSize() < minimumFileSize){
+				d.status.fileTooSmall = true;
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' file is empty!! 😨");
+			}
 		}
-
 	}else{
 		d.status.localFileExists = false;
 		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' Does NOT EXIST! 😞");
