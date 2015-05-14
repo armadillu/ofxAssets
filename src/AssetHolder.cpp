@@ -40,7 +40,7 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 	ad.fileName = ofFilePath::getFileName(url);
 	ad.absolutePath = ofToDataPath(directoryForAssets + "/" + ad.fileName, true);
 
-	map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = REMOTE;
 		ad.extension = ofFilePath::getFileExt(url);
@@ -48,6 +48,7 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 		ad.type = typeFromExtension(ad.extension);
 		ad.url = url;
 		ad.sha1 = sha1;
+		assetAddOrder[assetAddOrder.size()] = ad.absolutePath;
 		assets[ad.absolutePath] = ad;
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
@@ -63,14 +64,16 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 	AssetDescriptor ad;
 	ad.absolutePath = ofToDataPath(localPath, true);
 
-	map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = LOCAL;
 		ad.extension = ofFilePath::getFileExt(localPath);
 		ad.type = typeFromExtension(ad.extension);
 		ad.specs = spec;
 		ad.fileName = ofFilePath::getFileName(localPath);
+		assetAddOrder[assetAddOrder.size()] = ad.absolutePath;
 		assets[ad.absolutePath] = ad;
+
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
 	}
@@ -79,7 +82,7 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 
 bool AssetHolder::areAllAssetsOK(){
 	int numOK = 0;
-	map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
 
 		if (isReadyToUse(it->second)){
@@ -94,7 +97,7 @@ AssetHolder::AssetStats AssetHolder::getAssetStats(){
 
 	AssetStats s;
 	s.numAssets = assets.size();
-	map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 	while(it != assets.end()){
 		AssetDescriptor & ad = it->second;
 		if(ad.status.checked){
@@ -146,7 +149,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 
 void AssetHolder::updateLocalAssetsStatus(){
 
-	map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 
 	while( it != assets.end()){
 		checkLocalAssetStatus(it->second);
@@ -209,7 +212,7 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 		vector<string> urls;
 		vector<string> sha1s;
 
-		map<string, AssetDescriptor>::iterator it = assets.begin();
+		unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 
 		while( it != assets.end() ){
 

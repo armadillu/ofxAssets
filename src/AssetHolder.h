@@ -9,6 +9,14 @@
 #ifndef _AssetHolder_h
 #define _AssetHolder_h
 
+#if __cplusplus>=201103L || defined(_MSC_VER)
+#include <unordered_map>
+#include <memory>
+#else
+#include <tr1/unordered_map>
+using std::tr1::unordered_map;
+#endif
+
 #include "ofMain.h"
 #include "ofxDownloadCentral.h"
 
@@ -54,10 +62,10 @@ public:
 	AssetDescriptor& getAssetDescForURL(const string& url);
 
 	int getNumAssets();
-	AssetDescriptor& getAssetDescAtIndex(int i);
+	AssetDescriptor& getAssetDescAtIndex(int i); //in add order, 0 will be the first asset you added
+												//by calling addRemoteAsset or addLocalAsset
 
 	AssetStats getAssetStats();
-
 
 	static string toString(AssetStats &s);
 
@@ -69,27 +77,23 @@ public:
 	//assets that need to be downloaded
 
 	vector<AssetDescriptor> getMissingAssets();
-	vector<AssetDescriptor> getAllAssetsInDB();
+	vector<AssetDescriptor> getAllAssetsInDB(); //not in add order! :(
+
+	//its up to you to fill in data structures? TODO!
+	//unordered_map<string, AssetDescriptor>& getAssetsMap(){return assets;}
 
 	// CALLBACK //
 	void downloadsFinished(ofxBatchDownloaderReport & report);
 
-private:
+protected:
 
 	AssetType typeFromExtension(const string& extension);
 	void checkLocalAssetStatus(AssetDescriptor & d);
 
 	//the actual assets
-	map<string, AssetDescriptor> assets; 	//index by absolutePath
-											//2 assets cant have the same abs path!
-
-	//policies
-	AssetUsagePolicy localAssetOkPolicy;
-	AssetDownloadPolicy assetShouldBeDownloadedPolicy;
-
-	//meh
-	static AssetDescriptor emptyAsset;
-	static int minimumFileSize;
+	map<int, string> assetAddOrder;
+	unordered_map<string, AssetDescriptor> assets; 	//index by absolutePath
+													//2 assets cant have the same abs path!
 
 	string directoryForAssets;
 	bool isDownloadingData;
@@ -100,6 +104,12 @@ private:
 
 	bool shouldDownload(const AssetDescriptor &d);
 	bool isReadyToUse(const AssetDescriptor &d);
+
+private:
+
+	//meh
+	static AssetDescriptor emptyAsset;
+	static int minimumFileSize;
 };
 
 #endif

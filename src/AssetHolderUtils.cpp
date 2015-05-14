@@ -9,7 +9,7 @@
 #include "AssetHolder.h"
 
 bool AssetHolder::localAssetExistsInDB(const string& absPath){
-	map<string, AssetDescriptor>::iterator it = assets.find(absPath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(absPath);
 	return it != assets.end();
 }
 
@@ -17,7 +17,7 @@ bool AssetHolder::localAssetExistsInDB(const string& absPath){
 
 bool AssetHolder::remoteAssetExistsInDB(const string& url){
 
-	map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return true;
@@ -30,7 +30,7 @@ bool AssetHolder::remoteAssetExistsInDB(const string& url){
 
 AssetHolder::AssetDescriptor&
 AssetHolder::getAssetDescForAbsPath(const string& absPath){
-	map<string, AssetDescriptor>::iterator it = assets.find(absPath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(absPath);
 	if(it != assets.end()){
 		return it->second;
 	}
@@ -40,7 +40,7 @@ AssetHolder::getAssetDescForAbsPath(const string& absPath){
 
 AssetHolder::AssetDescriptor&
 AssetHolder::getAssetDescForURL(const string& url){
-	map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return it->second;
@@ -67,14 +67,8 @@ string AssetHolder::toString(AssetStats &s){
 AssetHolder::AssetDescriptor&
 AssetHolder::getAssetDescAtIndex(int i){
 
-	int c = 0;
-	map<string, AssetDescriptor>::iterator it = assets.begin();
-	while( it != assets.end()){
-		if (c == i){
-			return it->second;
-		}
-		++it;
-		c++;
+	if(i >= 0 && i < assetAddOrder.size()){
+		return assets[assetAddOrder[i]];
 	}
 	return  emptyAsset;
 }
