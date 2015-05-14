@@ -22,6 +22,7 @@ bool AssetHolder::remoteAssetExistsInDB(const string& url){
 		if(it->second.url == url){
 			return true;
 		}
+		++it;
 	}
 	return false;
 }
@@ -44,6 +45,7 @@ AssetHolder::getAssetDescForURL(const string& url){
 		if(it->second.url == url){
 			return it->second;
 		}
+		++it;
 	}
 	return emptyAsset;
 }
