@@ -48,6 +48,7 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 		ad.type = typeFromExtension(ad.extension);
 		ad.url = url;
 		ad.sha1 = sha1;
+		if(sha1.size()) ad.status.sha1Supplied = true;
 		assetAddOrder[assetAddOrder.size()] = ad.absolutePath;
 		assets[ad.absolutePath] = ad;
 	}else{
@@ -104,7 +105,6 @@ AssetHolder::AssetStats AssetHolder::getAssetStats(){
 			if(ad.status.fileTooSmall) s.numFileTooSmall++;
 			if(ad.status.sha1Match) s.numOK++;
 			if(ad.status.downloaded && !ad.status.downloadOK) s.numDownloadFailed++;
-			if(ad.status.sha1Match) s.numOK++;
 			if(!ad.status.sha1Supplied) s.numNoSha1Supplied++;
 			if(!ad.status.localFileExists) s.numMissingFile++;
 			if(ad.status.downloaded && !ad.status.sha1Match) s.numSha1Missmatch++;
