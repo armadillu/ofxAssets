@@ -179,26 +179,26 @@ void AssetHolder::checkLocalAssetStatus(AssetDescriptor & d){
 			d.status.sha1Match = ofxChecksum::sha1(d.absolutePath, d.sha1, false/*verbose*/);
 
 			if (d.status.sha1Match){
-				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' EXISTS and SHA1 OK 😄");
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' EXISTS and SHA1 OK 😄");
 			}else{
 				if (f.getSize() < minimumFileSize){
 					d.status.fileTooSmall = true;
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' file is empty!! 😨");
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 				}else{
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' CORRUPT! (sha1 missmatch) 💩");
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (sha1 missmatch) 💩 " + d.sha1);
 				}
 			}
 		}else{ //no sha1 supplied!
-			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' (sha1 not supplied) 🌚");
+			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' (sha1 not supplied) 🌚");
 			d.status.sha1Supplied = false;
 			if (f.getSize() < minimumFileSize){
 				d.status.fileTooSmall = true;
-				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' file is empty!! 😨");
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 			}
 		}
 	}else{
 		d.status.localFileExists = false;
-		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' Does NOT EXIST! 😞");
+		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' Does NOT EXIST! 😞");
 	}
 	f.close();
 }
