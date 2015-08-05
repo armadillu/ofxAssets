@@ -121,7 +121,7 @@ struct AssetDescriptor{
 
 	string fileName;
 	string extension;
-	string absolutePath; //this is the "unique key" of all assets, must be unique per asset
+	string relativePath; //this is the "unique key" of all assets, must be unique per asset
 
 	string url;
 	string sha1;

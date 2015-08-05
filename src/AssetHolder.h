@@ -43,7 +43,7 @@ public:
 	static void setMinimumFileSize(int numBytes){minimumFileSize = numBytes;}
 
 	//use these to add assets easily, fill in most internal structure by just providing a few things
-	//return a constructed "absolutePath" which will be the acces key
+	//return a constructed "relativePath" which will be the acces key
 	string addRemoteAsset(const string& url, const string& sha1, AssetSpecs spec = AssetSpecs());
 	string addLocalAsset(const string& path, AssetSpecs spec = AssetSpecs()); //path relative to data!
 
@@ -92,7 +92,7 @@ protected:
 
 	//the actual assets
 	map<int, string> assetAddOrder;
-	unordered_map<string, AssetDescriptor> assets; 	//index by absolutePath
+	unordered_map<string, AssetDescriptor> assets; 	//index by relativePath
 													//2 assets cant have the same abs path!
 
 	string directoryForAssets;

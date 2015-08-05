@@ -38,9 +38,9 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 
 	AssetDescriptor ad;
 	ad.fileName = ofFilePath::getFileName(url);
-	ad.absolutePath = ofToDataPath(directoryForAssets + "/" + ad.fileName, true);
+	ad.relativePath = ofToDataPath(directoryForAssets + "/" + ad.fileName, false);
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.relativePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = REMOTE;
 		ad.extension = ofFilePath::getFileExt(url);
@@ -48,12 +48,12 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 		ad.type = typeFromExtension(ad.extension);
 		ad.url = url;
 		ad.sha1 = sha1;
-		assetAddOrder[assetAddOrder.size()] = ad.absolutePath;
-		assets[ad.absolutePath] = ad;
+		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
+		assets[ad.relativePath] = ad;
 	}else{
-		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
+		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;
 	}
-	return ad.absolutePath;
+	return ad.relativePath;
 };
 
 
@@ -62,22 +62,22 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 	ASSET_HOLDER_SETUP_CHECK;
 
 	AssetDescriptor ad;
-	ad.absolutePath = ofToDataPath(localPath, true);
+	ad.relativePath = ofToDataPath(localPath, true);
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.absolutePath);
+	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.relativePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = LOCAL;
 		ad.extension = ofFilePath::getFileExt(localPath);
 		ad.type = typeFromExtension(ad.extension);
 		ad.specs = spec;
 		ad.fileName = ofFilePath::getFileName(localPath);
-		assetAddOrder[assetAddOrder.size()] = ad.absolutePath;
-		assets[ad.absolutePath] = ad;
+		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
+		assets[ad.relativePath] = ad;
 
 	}else{
-		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.absolutePath;
+		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;
 	}
-	return ad.absolutePath;
+	return ad.relativePath;
 }
 
 bool AssetHolder::areAllAssetsOK(){
@@ -160,12 +160,12 @@ void AssetHolder::updateLocalAssetsStatus(){
 
 void AssetHolder::checkLocalAssetStatus(AssetDescriptor & d){
 
-	if(d.absolutePath.size() == 0){
-		ofLogError("AssetHolder") << "Asset with no 'absolutePath'; cant checkLocalAssetStatus!";
+	if(d.relativePath.size() == 0){
+		ofLogError("AssetHolder") << "Asset with no 'relativePath'; cant checkLocalAssetStatus!";
 		return;
 	}
 	ofFile f;
-	f.open( d.absolutePath );
+	f.open( d.relativePath );
 
 	d.status.checked = true;
 
@@ -176,29 +176,29 @@ void AssetHolder::checkLocalAssetStatus(AssetDescriptor & d){
 		if (d.hasSha1()){
 			d.status.sha1Supplied = true;
 			d.status.localFileSha1Checked = true;
-			d.status.sha1Match = ofxChecksum::sha1(d.absolutePath, d.sha1, false/*verbose*/);
+			d.status.sha1Match = ofxChecksum::sha1(d.relativePath, d.sha1, false/*verbose*/);
 
 			if (d.status.sha1Match){
-				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' EXISTS and SHA1 OK 😄");
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' EXISTS and SHA1 OK 😄");
 			}else{
 				if (f.getSize() < minimumFileSize){
 					d.status.fileTooSmall = true;
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' file is empty!! 😨");
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' file is empty!! 😨");
 				}else{
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' CORRUPT! (sha1 missmatch) 💩");
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' CORRUPT! (sha1 missmatch) 💩");
 				}
 			}
 		}else{ //no sha1 supplied!
-			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' (sha1 not supplied) 🌚");
+			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' (sha1 not supplied) 🌚");
 			d.status.sha1Supplied = false;
 			if (f.getSize() < minimumFileSize){
 				d.status.fileTooSmall = true;
-				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' file is empty!! 😨");
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' file is empty!! 😨");
 			}
 		}
 	}else{
 		d.status.localFileExists = false;
-		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.absolutePath) + "' Does NOT EXIST! 😞");
+		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.relativePath) + "' Does NOT EXIST! 😞");
 	}
 	f.close();
 }
