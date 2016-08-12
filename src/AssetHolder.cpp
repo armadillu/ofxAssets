@@ -167,8 +167,6 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 	ofFile f;
 	f.open( d.relativePath );
 
-	d.status.checked = true;
-
 	if(f.exists()){
 
 		d.status.localFileExists = true;
@@ -201,6 +199,8 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 		ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' Does NOT EXIST! 😞");
 	}
 	f.close();
+	d.status.checked = true;
+
 }
 
 
