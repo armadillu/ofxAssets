@@ -9,7 +9,7 @@
 #include "AssetHolder.h"
 
 bool AssetHolder::localAssetExistsInDB(const string& absPath){
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(absPath);
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(absPath);
 	return it != assets.end();
 }
 
@@ -17,7 +17,7 @@ bool AssetHolder::localAssetExistsInDB(const string& absPath){
 
 bool AssetHolder::remoteAssetExistsInDB(const string& url){
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return true;
@@ -28,9 +28,9 @@ bool AssetHolder::remoteAssetExistsInDB(const string& url){
 }
 
 
-AssetHolder::AssetDescriptor&
+ofxAssets::Descriptor&
 AssetHolder::getAssetDescForAbsPath(const string& absPath){
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(absPath);
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(absPath);
 	if(it != assets.end()){
 		return it->second;
 	}
@@ -38,9 +38,9 @@ AssetHolder::getAssetDescForAbsPath(const string& absPath){
 }
 
 
-AssetHolder::AssetDescriptor&
+ofxAssets::Descriptor&
 AssetHolder::getAssetDescForURL(const string& url){
-	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return it->second;
@@ -51,7 +51,7 @@ AssetHolder::getAssetDescForURL(const string& url){
 }
 
 
-string AssetHolder::toString(AssetStats &s){
+string AssetHolder::toString(ofxAssets::Stats &s){
 
 	string msg = "NumAssets: " + ofToString(s.numAssets) +
 	" NumMissingLocalFile: " + ofToString(s.numMissingFile) +
@@ -64,7 +64,7 @@ string AssetHolder::toString(AssetStats &s){
 }
 
 
-AssetHolder::AssetDescriptor&
+ofxAssets::Descriptor&
 AssetHolder::getAssetDescAtIndex(int i){
 
 	if(i >= 0 && i < assetAddOrder.size()){
@@ -78,39 +78,39 @@ int AssetHolder::getNumAssets(){
 	return assets.size();
 }
 
-AssetHolder::AssetType
+ofxAssets::Type
 AssetHolder::typeFromExtension(const string& extension){
 
-	AssetType type = TYPE_UNKNOWN;
+	ofxAssets::Type type = ofxAssets::TYPE_UNKNOWN;
 
 	string lce = ofToLower(extension);
 	if(lce == "jpg" || lce == "jpeg" || lce == "png" || lce == "gif" || lce == "tiff" ||
 	   lce == "tga" || lce == "bmp"){
-		type = IMAGE;
+		type = ofxAssets::IMAGE;
 	}
 	else if(lce == "mov" || lce == "mp4" || lce == "avi" || lce == "mpg" || lce == "mpeg" ||
 			lce == "mkv" || lce == "vob" || lce == "qt" || lce == "wmv" || lce == "m4v" ||
 			lce == "mp2" || lce == "m2v" || lce == "m4v"){
-		type = VIDEO;
+		type = ofxAssets::VIDEO;
 	}
 	else if (lce == "aif" || lce == "aiff" || lce == "mp3" || lce == "wav" || lce == "mp4" ||
 			 lce == "aac" || lce == "flac" || lce == "m4a" || lce == "wma"){
-		type = AUDIO;
+		type = ofxAssets::AUDIO;
 	}
 	else if (lce == "json"){
-		type = JSON;
+		type = ofxAssets::JSON;
 	}
 	else if (lce == "txt" || lce == "log"){
-		type = TEXT;
+		type = ofxAssets::TEXT;
 	}
 	else if (lce == "ttf" || lce == "otf"){
-		type = FONT;
+		type = ofxAssets::FONT;
 	}
 	return type;
 }
 
 
-bool AssetHolder::shouldDownload(const AssetDescriptor &d){
+bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 
 	bool shouldDownload = false;
 	//lets see if we should download this asset
@@ -138,7 +138,7 @@ bool AssetHolder::shouldDownload(const AssetDescriptor &d){
 	return shouldDownload;
 }
 
-bool AssetHolder::isReadyToUse(const AssetDescriptor &d){
+bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
 
 	bool isReady = false;
 	//lets see if we should download this asset

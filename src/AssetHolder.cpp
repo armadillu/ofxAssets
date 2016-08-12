@@ -10,9 +10,10 @@
 #include "ofxChecksum.h"
 #include "ofxThreadSafeLog.h"
 
-AssetHolder::AssetDescriptor AssetHolder::emptyAsset = AssetHolder::AssetDescriptor();
-int AssetHolder::minimumFileSize = 1024;
+using namespace ofxAssets;
 
+ofxAssets::Descriptor AssetHolder::emptyAsset = ofxAssets::Descriptor();
+int AssetHolder::minimumFileSize = 1024;
 
 AssetHolder::AssetHolder(){
 	isSetup = false;
@@ -20,8 +21,8 @@ AssetHolder::AssetHolder(){
 }
 
 
-void AssetHolder::setup(const string& directoryForAssets_, AssetUsagePolicy assetOkPolicy_,
-						AssetDownloadPolicy downloadPolicy_){
+void AssetHolder::setup(const string& directoryForAssets_, ofxAssets::UsagePolicy assetOkPolicy_,
+						ofxAssets::DownloadPolicy downloadPolicy_){
 	isSetup = true;
 	directoryForAssets = ofFilePath::addTrailingSlash(directoryForAssets_);
 	assetOkPolicy = assetOkPolicy_;
@@ -32,15 +33,15 @@ void AssetHolder::setup(const string& directoryForAssets_, AssetUsagePolicy asse
 }
 
 
-string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetSpecs spec){
+string AssetHolder::addRemoteAsset(const string& url, const string& sha1, ofxAssets::Specs spec){
 
 	ASSET_HOLDER_SETUP_CHECK;
 
-	AssetDescriptor ad;
+	ofxAssets::Descriptor ad;
 	ad.fileName = ofFilePath::getFileName(url);
-	ad.relativePath = ofToDataPath(directoryForAssets + "/" + ad.fileName, false);
+	ad.relativePath = ofToDataPath(directoryForAssets + ad.fileName, false);
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.relativePath);
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(ad.relativePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = REMOTE;
 		ad.extension = ofFilePath::getFileExt(url);
@@ -58,14 +59,14 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, AssetS
 };
 
 
-string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
+string AssetHolder::addLocalAsset(const string& localPath, ofxAssets::Specs spec){
 
 	ASSET_HOLDER_SETUP_CHECK;
 
-	AssetDescriptor ad;
+	ofxAssets::Descriptor ad;
 	ad.relativePath = ofToDataPath(localPath, true);
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.find(ad.relativePath);
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(ad.relativePath);
 	if(it == assets.end()){ //we dont have this one
 		ad.location = LOCAL;
 		ad.extension = ofFilePath::getFileExt(localPath);
@@ -83,9 +84,8 @@ string AssetHolder::addLocalAsset(const string& localPath, AssetSpecs spec){
 
 bool AssetHolder::areAllAssetsOK(){
 	int numOK = 0;
-	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 	while( it != assets.end()){
-
 		if (isReadyToUse(it->second)){
 			numOK++;
 		}
@@ -94,13 +94,13 @@ bool AssetHolder::areAllAssetsOK(){
 	return numOK == assets.size();
 }
 
-AssetHolder::AssetStats AssetHolder::getAssetStats(){
+ofxAssets::Stats AssetHolder::getAssetStats(){
 
-	AssetStats s;
+	ofxAssets::Stats s;
 	s.numAssets = assets.size();
-	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 	while(it != assets.end()){
-		AssetDescriptor & ad = it->second;
+		ofxAssets::Descriptor & ad = it->second;
 		if(ad.status.checked){
 			if(ad.status.fileTooSmall) s.numFileTooSmall++;
 			if(ad.status.sha1Match) s.numOK++;
@@ -127,7 +127,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 
 			isDownloadingData = false;
 
-			AssetDescriptor & d = getAssetDescForURL(r.url);
+			ofxAssets::Descriptor & d = getAssetDescForURL(r.url);
 			d.status.downloaded = true;
 			d.status.downloadOK = r.ok;
 			if(d.status.downloadOK){
@@ -149,7 +149,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 
 void AssetHolder::updateLocalAssetsStatus(){
 
-	unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 
 	while( it != assets.end()){
 		checkLocalAssetStatus(it->second);
@@ -158,7 +158,7 @@ void AssetHolder::updateLocalAssetsStatus(){
 }
 
 
-void AssetHolder::checkLocalAssetStatus(AssetDescriptor & d){
+void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 
 	if(d.relativePath.size() == 0){
 		ofLogError("AssetHolder") << "Asset with no 'relativePath'; cant checkLocalAssetStatus!";
@@ -212,11 +212,11 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 		vector<string> urls;
 		vector<string> sha1s;
 
-		unordered_map<string, AssetDescriptor>::iterator it = assets.begin();
+		unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 
 		while( it != assets.end() ){
 
-			AssetDescriptor & d = it->second;
+			ofxAssets::Descriptor & d = it->second;
 
 			if(d.location == REMOTE){
 				if(shouldDownload(d)){

@@ -29,14 +29,14 @@ void AssetCheckThread::threadedFunction(){
 		assetObjects[i]->updateLocalAssetsStatus();
 		progress = i / float(assetObjects.size() - 1);
 	}
-	bool whatever;
-	ofNotifyEvent(eventFinishedCheckingAssets, whatever, this);
+	ofNotifyEvent(eventFinishedCheckingAssets, this);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AssetChecker::update(){
 
 	if (started){
-
 		int numRunningThreads = 0;
 		for(int i = 0; i < threads.size(); i++){
 			if (threads[i]->isThreadRunning()){
@@ -44,14 +44,12 @@ void AssetChecker::update(){
 			}
 		}
 		if(numThreadsCompleted == threads.size() && numRunningThreads == 0){
-			started = false;
 			for(int i = 0; i < threads.size(); i++){
 				delete threads[i];
 			}
 			threads.clear();
-
-			bool whatever;
-			ofNotifyEvent(eventFinishedCheckingAllAssets, whatever, this);
+			started = false;
+			ofNotifyEvent(eventFinishedCheckingAllAssets, this);
 		}
 	}
 }
@@ -63,10 +61,12 @@ AssetChecker::AssetChecker(){
 
 
 void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThreads){
+
 	assetObjects = assetObjects_;
 	int nPerThread = assetObjects.size() / numThreads;
 	numThreadsCompleted = 0;
 	started = true;
+
 	for(int i = 0; i < numThreads; i++){
 
 		AssetCheckThread * t = new AssetCheckThread();
@@ -101,7 +101,7 @@ float AssetChecker::getProgress(){
 	return  progress;
 }
 
-void AssetChecker::onAssetCheckThreadFinished(bool &){
+void AssetChecker::onAssetCheckThreadFinished(){
 	mutex.lock();
 	numThreadsCompleted++;
 	ofLogNotice("AssetChecker") << "AssetCheck Thread Finished (" << numThreadsCompleted << "/" << (int)threads.size() << ")";

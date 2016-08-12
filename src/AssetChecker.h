@@ -21,7 +21,7 @@ public:
 	void checkAssetsInThread(const vector<AssetHolder*>& assetObjects);
 
 	float getProgress(){return progress;}
-	ofEvent<bool> eventFinishedCheckingAssets;
+	ofEvent<void> eventFinishedCheckingAssets;
 
 private:
 
@@ -29,6 +29,7 @@ private:
 	void threadedFunction();
 	vector<AssetHolder*> assetObjects;
 };
+
 
 
 class AssetChecker{
@@ -42,10 +43,10 @@ public:
 	float getProgress();
 
 	//callback
-	void onAssetCheckThreadFinished(bool &);
+	void onAssetCheckThreadFinished();
 
 
-	ofEvent<bool> eventFinishedCheckingAllAssets;
+	ofEvent<void> eventFinishedCheckingAllAssets;
 
 protected:
 
