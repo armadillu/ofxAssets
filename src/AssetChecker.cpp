@@ -8,10 +8,6 @@
 
 #include "AssetChecker.h"
 
-AssetCheckThread::AssetCheckThread(){
-	progress = 0;
-}
-
 
 void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObjects_){
 	if(isThreadRunning()){
@@ -59,6 +55,24 @@ AssetChecker::AssetChecker(){
 	started = false;
 }
 
+string AssetChecker::getDrawableState(){
+
+	if(started){
+		string msg;
+		msg += "AssetChecker : checking assets integrity.";
+		msg += "\n\n";
+		vector<float> progress = getPerThreadProgress();
+		for(int i = 0; i < progress.size(); i++){
+			msg += "  Thread " + ofToString(i) + ": " + ofToString(100 * progress[i], 1) +
+			"% done. (" + ofToString((int)threads[i]->getNumObjectsChecked()) + " of " +
+			ofToString((int)threads[i]->getNumObjectsToCheck()) + " Assets Checked)\n";
+		}
+		return msg;
+	}else{
+		return "AssetChecker : Idle";
+	}
+
+}
 
 void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThreads){
 
@@ -100,6 +114,16 @@ float AssetChecker::getProgress(){
 	}
 	return  progress;
 }
+
+vector<float> AssetChecker::getPerThreadProgress(){
+	vector<float> p;
+
+	for(int i = 0; i < threads.size(); i++){
+		p.push_back(threads[i]->getProgress());
+	}
+	return p;
+}
+
 
 void AssetChecker::onAssetCheckThreadFinished(){
 	mutex.lock();

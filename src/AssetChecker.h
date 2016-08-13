@@ -17,15 +17,17 @@ class AssetCheckThread : public ofThread{
 
 public:
 
-	AssetCheckThread();
 	void checkAssetsInThread(const vector<AssetHolder*>& assetObjects);
 
 	float getProgress(){return progress;}
 	ofEvent<void> eventFinishedCheckingAssets;
 
+	int getNumObjectsToCheck(){return assetObjects.size();};
+	int getNumObjectsChecked(){ return assetObjects.size() * progress; };
+
 private:
 
-	float progress;
+	float progress = 0;
 	void threadedFunction();
 	vector<AssetHolder*> assetObjects;
 };
@@ -41,6 +43,10 @@ public:
 	void checkAssets(vector<AssetHolder*> assetObjects, int numThreads = Poco::Environment::processorCount());
 	void update();
 	float getProgress();
+	vector<float> getPerThreadProgress();
+
+	string getDrawableState();
+
 
 	//callback
 	void onAssetCheckThreadFinished();
