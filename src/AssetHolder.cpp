@@ -33,7 +33,10 @@ void AssetHolder::setup(const string& directoryForAssets_, ofxAssets::UsagePolic
 }
 
 
-string AssetHolder::addRemoteAsset(const string& url, const string& sha1, ofxAssets::Specs spec){
+string AssetHolder::addRemoteAsset(const string& url,
+								   const string& sha1,
+								   const vector<string>& tags,
+								   ofxAssets::Specs spec){
 
 	ASSET_HOLDER_SETUP_CHECK;
 
@@ -52,6 +55,10 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, ofxAss
 		if(sha1.size()) ad.status.sha1Supplied = true;
 		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
 		assets[ad.relativePath] = ad;
+		for(auto & tag : tags){
+			string objectID = ad.relativePath; //assets inside an AssetHodler are indexed by they relative path
+			this->tags.addTagForObject(objectID, Tag<TagCategory>(tag, CATEGORY));
+		}
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;
 	}
@@ -59,12 +66,15 @@ string AssetHolder::addRemoteAsset(const string& url, const string& sha1, ofxAss
 };
 
 
-string AssetHolder::addLocalAsset(const string& localPath, ofxAssets::Specs spec){
+string AssetHolder::addLocalAsset(const string& localPath,
+								  const vector<string>& tags,
+								  ofxAssets::Specs spec
+								  ){
 
 	ASSET_HOLDER_SETUP_CHECK;
 
 	ofxAssets::Descriptor ad;
-	ad.relativePath = ofToDataPath(localPath, true);
+	ad.relativePath = ofToDataPath(localPath, false);
 
 	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(ad.relativePath);
 	if(it == assets.end()){ //we dont have this one
@@ -75,6 +85,11 @@ string AssetHolder::addLocalAsset(const string& localPath, ofxAssets::Specs spec
 		ad.fileName = ofFilePath::getFileName(localPath);
 		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
 		assets[ad.relativePath] = ad;
+
+		for(auto & tag : tags){
+			string objectID = ad.relativePath; //assets inside an AssetHodler are indexed by they relative path
+			this->tags.addTagForObject(objectID, Tag<TagCategory>(tag, CATEGORY));
+		}
 
 	}else{
 		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;

@@ -46,8 +46,7 @@ namespace ofxAssets{
 		bool fileTooSmall; //regardless of sha1
 	};
 
-	struct UsagePolicy: public Policy{
-		//asset should be Used if...
+	struct UsagePolicy: public Policy{ //asset should be Used if...
 		UsagePolicy(){
 			fileMissing = false;
 			fileTooSmall = false;
@@ -57,8 +56,7 @@ namespace ofxAssets{
 		}
 	};
 
-	struct DownloadPolicy : public Policy{
-		//asset should be downloaded if...
+	struct DownloadPolicy : public Policy{ //asset should be downloaded if...
 		DownloadPolicy(){
 			fileMissing = true;
 			fileTooSmall = true;
@@ -66,6 +64,12 @@ namespace ofxAssets{
 			fileExistsAndProvidedSha1Missmatch = true;
 			fileExistsAndProvidedSha1Match = false;
 		}
+	};
+
+	//TODO!
+	struct ObjectUsagePolicy{ //object with assets should only be used if...
+		bool allObjectAssetsAreOK;
+		int minNumberOfVideoAssets; //object will be dropped unless it has N or more valid assets (ie drop objects with 0 assets)
 	};
 
 	struct Stats{

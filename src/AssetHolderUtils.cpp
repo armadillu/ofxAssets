@@ -8,16 +8,15 @@
 
 #include "AssetHolder.h"
 
-bool AssetHolder::localAssetExistsInDB(const string& absPath){
-	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(absPath);
+bool AssetHolder::localAssetExistsInDB(const string& relativePath){
+	auto it = assets.find(relativePath);
 	return it != assets.end();
 }
 
 
-
 bool AssetHolder::remoteAssetExistsInDB(const string& url){
 
-	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
+	auto it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return true;
@@ -29,8 +28,8 @@ bool AssetHolder::remoteAssetExistsInDB(const string& url){
 
 
 ofxAssets::Descriptor&
-AssetHolder::getAssetDescForAbsPath(const string& absPath){
-	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.find(absPath);
+AssetHolder::getAssetDescForPath(const string& relativePath){ //relative to data
+	auto it = assets.find(relativePath);
 	if(it != assets.end()){
 		return it->second;
 	}
@@ -40,7 +39,7 @@ AssetHolder::getAssetDescForAbsPath(const string& absPath){
 
 ofxAssets::Descriptor&
 AssetHolder::getAssetDescForURL(const string& url){
-	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
+	auto it = assets.begin();
 	while( it != assets.end()){
 		if(it->second.url == url){
 			return it->second;
@@ -48,6 +47,59 @@ AssetHolder::getAssetDescForURL(const string& url){
 		++it;
 	}
 	return emptyAsset;
+}
+
+
+vector<ofxAssets::Descriptor>
+AssetHolder::getAssetDescriptorsForType(ofxAssets::Type type){
+
+	vector<ofxAssets::Descriptor> retAssets;
+	auto it = assets.begin();
+	while( it != assets.end()){
+		if(it->second.type == type){
+			retAssets.push_back(it->second);
+		}
+		++it;
+	}
+	return retAssets;
+}
+
+
+void AssetHolder::addTagsforAsset(const string & relPath, vector<string> tags){
+
+	auto it = assets.find(relPath);
+	if(it != assets.end()){
+		for(auto & tag : tags){
+			string objectID = it->second.relativePath; //assets inside an AssetHodler are indexed by they relative path
+			this->tags.addTagForObject(objectID, Tag<TagCategory>(tag, CATEGORY));
+		}
+	}
+}
+
+
+vector<ofxAssets::Descriptor>
+AssetHolder::getAssetDescsWithTag(const string & tag){
+
+	vector<ofxAssets::Descriptor> ads;
+	vector<string> paths = tags.getObjectsWithTag(Tag<TagCategory>(tag, CATEGORY));
+	for(auto & path : paths){
+		auto it = assets.find(path);
+		if(it != assets.end()){
+			ads.push_back(it->second);
+		}
+	}
+	return ads;
+}
+
+ofxAssets::UserInfo&
+AssetHolder::getUserInfoForPath(const string& relpath){
+
+	auto it = assets.find(relpath);
+	if(it != assets.end()){
+		return it->second.userInfo;
+	}
+	ofLogError("AssetHolder") << "getUserInfoForPath() no such asset! '" << relpath << "'";
+	return emptyUserInfo;
 }
 
 

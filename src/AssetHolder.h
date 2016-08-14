@@ -20,6 +20,8 @@ using std::tr1::unordered_map;
 #include "ofMain.h"
 #include "ofxDownloadCentral.h"
 #include "AssetHolderStructs.h"
+#include "TagManager.h"
+
 
 #define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return "error!";}
 const string assetLogFile = "logs/assetStatus.log";
@@ -30,8 +32,6 @@ const string assetLogFile = "logs/assetStatus.log";
 class AssetHolder{
 
 public:
-
-
 
 	AssetHolder();
 
@@ -45,38 +45,54 @@ public:
 
 	//use these to add assets easily, fill in most internal structure by just providing a few things
 	//return a constructed "relativePath" which will be the acces key
-	string addRemoteAsset(const string& url, const string& sha1, ofxAssets::Specs spec = ofxAssets::Specs());
-	string addLocalAsset(const string& path, ofxAssets::Specs spec = ofxAssets::Specs()); //path relative to data!
+	//when you add an asset, ofxAsset will try its best to tag it according to file extension
+	//you can "tag" each asset to get it back later (ie "primaryImage", "sizeLarge", "sizeSmall")
+	string addRemoteAsset(const string& url,
+						  const string& sha1,
+						  const vector<string>& tags = vector<string>(),
+						  ofxAssets::Specs spec = ofxAssets::Specs()
+						  );
 
-	//totally custom - up to you to fill up the required structures
+	string addLocalAsset(const string& path,
+						 const vector<string>& tags = vector<string>(),
+						 ofxAssets::Specs spec = ofxAssets::Specs()
+						 ); //path relative to data!
+
+	//totally custom - up to you to fill up the required structures - u should know what you are doing if you use this
 	void addAsset(const string& absoluteURL, const ofxAssets::Descriptor&);
-
 
 	bool areAllAssetsOK(); //should we drop this object? if assets are wrong, yes!
 
-	// Access //
-
+	// Access ...		//
 	bool remoteAssetExistsInDB(const string& url);
 	bool localAssetExistsInDB(const string& absPath);
 
-	ofxAssets::Descriptor& getAssetDescForAbsPath(const string& path);
+		// ... by key (relative path)
+	ofxAssets::Descriptor& getAssetDescForPath(const string& path); //should be a relative path to data
 	ofxAssets::Descriptor& getAssetDescForURL(const string& url);
+	vector<ofxAssets::Descriptor> getAssetDescriptorsForType(ofxAssets::Type);
 
+		// ... by Index
 	int getNumAssets();
-	ofxAssets::Descriptor& getAssetDescAtIndex(int i); //in add order, 0 will be the first asset you added
-												//by calling addRemoteAsset or addLocalAsset
+	ofxAssets::Descriptor& getAssetDescAtIndex(int i);	//in add order, 0 will be the first asset you added
+														//by calling addRemoteAsset or addLocalAsset
 
+	// User info // >> this is mostly a reminder that you can add custom info to your assets
+	ofxAssets::UserInfo & getUserInfoForPath(const string& path);
+
+	// Tags //
+	void addTagsforAsset(const string & relPath, vector<string> tags);
+	vector<ofxAssets::Descriptor> getAssetDescsWithTag(const string & tag);
+
+	// Stats //
 	ofxAssets::Stats getAssetStats();
-
 	static string toString(ofxAssets::Stats &s);
 
 	// Actions //
-
 	void updateLocalAssetsStatus(); //call this to check local filesystem and decide what is missing / needed
 	vector<string> downloadMissingAssets(ofxDownloadCentral& downloader); //return urls being downloaded
 
 	//assets that need to be downloaded
-
 	vector<ofxAssets::Descriptor> getMissingAssets();
 	vector<ofxAssets::Descriptor> getAllAssetsInDB(); //not in add order! :(
 
@@ -94,7 +110,7 @@ protected:
 	//the actual assets
 	map<int, string> assetAddOrder;
 	unordered_map<string, ofxAssets::Descriptor> assets; 	//index by relativePath
-													//2 assets cant have the same abs path!
+															//2 assets cant have the same path!
 
 	string directoryForAssets;
 	bool isDownloadingData;
@@ -106,10 +122,17 @@ protected:
 	bool shouldDownload(const ofxAssets::Descriptor &d);
 	bool isReadyToUse(const ofxAssets::Descriptor &d);
 
+	enum TagCategory{
+		CATEGORY
+	};
+
+	TagManager<TagCategory> tags = TagManager<TagCategory>(1); //only one category - forcing with our custom enum
+
 private:
 
 	//meh
 	static ofxAssets::Descriptor emptyAsset;
+	static ofxAssets::UserInfo emptyUserInfo;
 	static int minimumFileSize;
 };
 

@@ -115,9 +115,9 @@ float AssetChecker::getProgress(){
 	return  progress;
 }
 
+
 vector<float> AssetChecker::getPerThreadProgress(){
 	vector<float> p;
-
 	for(int i = 0; i < threads.size(); i++){
 		p.push_back(threads[i]->getProgress());
 	}
