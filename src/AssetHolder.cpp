@@ -97,6 +97,7 @@ string AssetHolder::addLocalAsset(const string& localPath,
 	return ad.relativePath;
 }
 
+
 bool AssetHolder::areAllAssetsOK(){
 	int numOK = 0;
 	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
@@ -107,6 +108,19 @@ bool AssetHolder::areAllAssetsOK(){
 		++it;
 	}
 	return numOK == assets.size();
+}
+
+vector<ofxAssets::Descriptor>
+AssetHolder::getBrokenAssets(){
+	vector<ofxAssets::Descriptor> broken;
+	unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
+	while( it != assets.end()){
+		if (!isReadyToUse(it->second)){
+			broken.push_back(it->second);
+		}
+		++it;
+	}
+	return broken;
 }
 
 ofxAssets::Stats AssetHolder::getAssetStats(){

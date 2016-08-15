@@ -63,7 +63,7 @@ string AssetChecker::getDrawableState(){
 		msg += "\n\n";
 		vector<float> progress = getPerThreadProgress();
 		for(int i = 0; i < progress.size(); i++){
-			msg += "  Thread " + ofToString(i) + ": " + ofToString(100 * progress[i], 1) +
+			msg += "  Thread (" + ofToString(i) + "): " + ofToString(100 * progress[i], 1) +
 			"% done. (" + ofToString((int)threads[i]->getNumObjectsChecked()) + " of " +
 			ofToString((int)threads[i]->getNumObjectsToCheck()) + " Assets Checked)\n";
 		}

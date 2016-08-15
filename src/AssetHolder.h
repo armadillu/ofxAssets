@@ -62,6 +62,7 @@ public:
 	void addAsset(const string& absoluteURL, const ofxAssets::Descriptor&);
 
 	bool areAllAssetsOK(); //should we drop this object? if assets are wrong, yes!
+	vector<ofxAssets::Descriptor> getBrokenAssets();
 
 	// Access ...		//
 	bool remoteAssetExistsInDB(const string& url);

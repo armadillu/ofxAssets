@@ -66,10 +66,18 @@ namespace ofxAssets{
 		}
 	};
 
-	//TODO!
-	struct ObjectUsagePolicy{ //object with assets should only be used if...
+	struct ObjectUsagePolicy{ //an AssetHolder obj should only be used as live content if...
 		bool allObjectAssetsAreOK;
-		int minNumberOfVideoAssets; //object will be dropped unless it has N or more valid assets (ie drop objects with 0 assets)
+		int minNumberOfImageAssets; //object will be dropped unless it has N or more valid assets (ie drop objects with 0 assets)
+		int minNumberOfVideoAssets;
+		int minNumberOfAudioAssets;
+
+		ObjectUsagePolicy(){
+			allObjectAssetsAreOK = true;
+			minNumberOfImageAssets = 1;
+			minNumberOfVideoAssets = 0;
+			minNumberOfAudioAssets = 0;
+		}
 	};
 
 	struct Stats{
