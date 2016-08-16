@@ -9,10 +9,14 @@
 #include "AssetHolder.h"
 #include "ofxChecksum.h"
 #include "ofxThreadSafeLog.h"
+#include "AssetHolderStructs.h"
 
 using namespace ofxAssets;
 
+
+//create empty objects to be able to return references on bogus calls
 ofxAssets::Descriptor AssetHolder::emptyAsset = ofxAssets::Descriptor();
+ofxAssets::UserInfo AssetHolder::emptyUserInfo = ofxAssets::UserInfo();
 int AssetHolder::minimumFileSize = 1024;
 
 AssetHolder::AssetHolder(){
