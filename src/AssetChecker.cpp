@@ -26,6 +26,7 @@ void AssetCheckThread::threadedFunction(){
 		progress = i / float(assetObjects.size() - 1);
 	}
 	ofNotifyEvent(eventFinishedCheckingAssets, this);
+	ofSleepMillis(16);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
