@@ -50,12 +50,14 @@ public:
 	string addRemoteAsset(const string& url,
 						  const string& sha1,
 						  const vector<string>& tags = vector<string>(),
-						  ofxAssets::Specs spec = ofxAssets::Specs()
+						  ofxAssets::Specs spec = ofxAssets::Specs(),
+						  ofxAssets::Type type = ofxAssets::TYPE_UNKNOWN
 						  );
 
 	string addLocalAsset(const string& path,
 						 const vector<string>& tags = vector<string>(),
-						 ofxAssets::Specs spec = ofxAssets::Specs()
+						 ofxAssets::Specs spec = ofxAssets::Specs(),
+						 ofxAssets::Type type = ofxAssets::TYPE_UNKNOWN
 						 ); //path relative to data!
 
 	//totally custom - up to you to fill up the required structures - u should know what you are doing if you use this

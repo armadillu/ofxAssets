@@ -40,7 +40,8 @@ void AssetHolder::setup(const string& directoryForAssets_, ofxAssets::UsagePolic
 string AssetHolder::addRemoteAsset(const string& url,
 								   const string& sha1,
 								   const vector<string>& tags,
-								   ofxAssets::Specs spec){
+								   ofxAssets::Specs spec,
+								   ofxAssets::Type type){
 
 	ASSET_HOLDER_SETUP_CHECK;
 
@@ -53,7 +54,11 @@ string AssetHolder::addRemoteAsset(const string& url,
 		ad.location = REMOTE;
 		ad.extension = ofFilePath::getFileExt(url);
 		ad.specs = spec;
-		ad.type = typeFromExtension(ad.extension);
+		if(type == ofxAssets::TYPE_UNKNOWN){
+			ad.type = typeFromExtension(ad.extension);
+		}else{
+			ad.type = type;
+		}
 		ad.url = url;
 		ad.sha1 = sha1;
 		if(sha1.size()) ad.status.sha1Supplied = true;
@@ -72,7 +77,8 @@ string AssetHolder::addRemoteAsset(const string& url,
 
 string AssetHolder::addLocalAsset(const string& localPath,
 								  const vector<string>& tags,
-								  ofxAssets::Specs spec
+								  ofxAssets::Specs spec,
+								  ofxAssets::Type type
 								  ){
 
 	ASSET_HOLDER_SETUP_CHECK;
@@ -84,7 +90,11 @@ string AssetHolder::addLocalAsset(const string& localPath,
 	if(it == assets.end()){ //we dont have this one
 		ad.location = LOCAL;
 		ad.extension = ofFilePath::getFileExt(localPath);
-		ad.type = typeFromExtension(ad.extension);
+		if(type == ofxAssets::TYPE_UNKNOWN){
+			ad.type = typeFromExtension(ad.extension);
+		}else{
+			ad.type = type;
+		}
 		ad.specs = spec;
 		ad.fileName = ofFilePath::getFileName(localPath);
 		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
