@@ -168,23 +168,14 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 	bool shouldDownload = false;
 	//lets see if we should download this asset
 	if(d.status.checked){
-		if(d.status.localFileExists){
-			if(!d.status.fileTooSmall){ //file big enough
-				if(d.status.sha1Supplied){
-					if(d.status.sha1Match){
-						shouldDownload = downloadPolicy.fileExistsAndProvidedSha1Match;
-					}else{
-						shouldDownload = downloadPolicy.fileExistsAndProvidedSha1Missmatch;
-					}
-				}else{ //no sha1 supplied, but file exists and its not small
-					shouldDownload = downloadPolicy.fileExistsAndNoSha1Provided;
-				}
-			}else{ //file too small
-				shouldDownload = downloadPolicy.fileTooSmall;;
-			}
-		}else{
-			shouldDownload = downloadPolicy.fileMissing;
+		if(assetOkPolicy.fileMissing && !d.status.localFileExists) return true;
+		if(assetOkPolicy.fileExistsAndNoSha1Provided && !d.status.sha1Supplied) return true;
+		if(assetOkPolicy.fileExistsAndProvidedSha1Missmatch && !d.status.sha1Match) return true;
+		if(assetOkPolicy.fileExistsAndProvidedSha1Match && !d.status.sha1Match) return true;
+		if(!d.status.sha1Match){ //if we have a sha1 match - file size is irrelevant so no more tests to run
+			if(assetOkPolicy.fileTooSmall && d.status.fileTooSmall) return true;
 		}
+
 	}else{
 		ofLogError("AssetHolder") << "cant decide wether to download or not - havent checked for local files yet!";
 	}
@@ -193,28 +184,29 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 
 bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
 
-	bool isReady = false;
-	//lets see if we should download this asset
+	bool isOKtoUse = false;
+
+	//lets see if we should use this asset
 	if(d.status.checked){
-		if(d.status.localFileExists){
-			if(!d.status.fileTooSmall){ //file big enough
-				if(d.status.sha1Supplied){
-					if(d.status.sha1Match){
-						isReady = assetOkPolicy.fileExistsAndProvidedSha1Match;
-					}else{
-						isReady = assetOkPolicy.fileExistsAndProvidedSha1Missmatch;
-					}
-				}else{ //no sha1 supplied, but file exists and its not small
-					isReady = assetOkPolicy.fileExistsAndNoSha1Provided;
-				}
-			}else{ //file too small
-				isReady = assetOkPolicy.fileTooSmall;
-			}
+		bool useIf_exists = (d.status.localFileExists || assetOkPolicy.fileMissing);
+		bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoSha1Provided || d.status.sha1Supplied);
+
+		bool useIf_sha1;
+		if(assetOkPolicy.fileExistsAndProvidedSha1Match){
+			useIf_sha1 = d.status.sha1Match;
 		}else{
-			isReady = assetOkPolicy.fileMissing;
+			useIf_sha1 = d.status.sha1Match || assetOkPolicy.fileExistsAndProvidedSha1Missmatch;
 		}
+		bool useIf_tooSmall;
+		if(!d.status.fileTooSmall){
+			useIf_tooSmall = true;
+		}else{ //too small!
+			useIf_tooSmall = assetOkPolicy.fileTooSmall;
+		}
+
+		isOKtoUse = useIf_tooSmall && useIf_sha1 && useIf_sha1_exists && useIf_exists;
 	}else{
 		ofLogError("AssetHolder") << "cant decide wether to USE or not - havent checked for local files yet!";
 	}
-	return isReady;
+	return isOKtoUse;
 }
