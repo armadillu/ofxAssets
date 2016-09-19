@@ -157,8 +157,9 @@ AssetHolder::typeFromExtension(const string& extension){
 	}
 	else if (lce == "ttf" || lce == "otf"){
 		type = ofxAssets::FONT;
+	}else{
+		ofLogError("AssetHolder") << "Can't recognize Asset Type from file extension: \"" << extension << "\"";
 	}
-	ofLogError("AssetHolder") << "Can't recognize Asset Type from file extension: \"" << extension << "\"";
 	return type;
 }
 
