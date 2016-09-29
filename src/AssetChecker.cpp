@@ -102,6 +102,10 @@ void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThread
 		vector<AssetHolder*>::const_iterator last = assetObjects.begin() + end;
 		vector<AssetHolder*> objsForThisThread(first, last);
 
+		mutex.lock();
+		ofLogNotice("AssetChecker") << "Start CheckAssets Thread! (" << i << "/" << numThreads << ") - checking " << end - start << " objects";
+		mutex.unlock();
+
 		ofAddListener(t->eventFinishedCheckingAssets, this, &AssetChecker::onAssetCheckThreadFinished);
 		t->checkAssetsInThread(objsForThisThread);
 	}
