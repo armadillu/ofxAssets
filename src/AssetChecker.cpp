@@ -130,10 +130,12 @@ vector<float> AssetChecker::getPerThreadProgress(){
 }
 
 
-void AssetChecker::onAssetCheckThreadFinished(){
+void AssetChecker::onAssetCheckThreadFinished() {
 	mutex.lock();
 	numThreadsCompleted++;
-	ofLogNotice("AssetChecker") << "AssetCheck Thread Finished (" << numThreadsCompleted << "/" << (int)threads.size() << ")";
+	if (numThreadsCompleted == threads.size()) {
+		ofLogNotice("AssetChecker") << "All AssetCheck Thread sFinished (" << numThreadsCompleted << ")";
+	}
 	mutex.unlock();
 }
 
