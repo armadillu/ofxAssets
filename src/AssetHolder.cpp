@@ -69,7 +69,7 @@ string AssetHolder::addRemoteAsset(const string& url,
 			this->tags.addTagForObject(objectID, Tag<TagCategory>(tag, CATEGORY));
 		}
 	}else{
-		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;
+		ofLogError("AssetHolder") << " Can't add this remote asset, already have it! " << ad.relativePath;
 	}
 	return ad.relativePath;
 };
@@ -106,7 +106,7 @@ string AssetHolder::addLocalAsset(const string& localPath,
 		}
 
 	}else{
-		ofLogError("AssetHolder") << " cant add this remote asset, already have it! " << ad.relativePath;
+		ofLogError("AssetHolder") << " Can't add this remote asset, already have it! " << ad.relativePath;
 	}
 	return ad.relativePath;
 }
@@ -181,10 +181,10 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 				d.status.sha1Match = true;
 			}else{
 				d.status.sha1Match = false;
-				ofLogError("AssetHolder") << "asset downloaded but SHA1 missmatch! [" << d.url << "] expected SHA1: " << d.sha1;
+				ofLogError("AssetHolder") << "Asset downloaded but SHA1 missmatch! [" << d.url << "] expected SHA1: " << d.sha1;
 			}
 		}else{
-			ofLogError("AssetHolder") << "asset downloaded but I dont know about it !?";
+			ofLogError("AssetHolder") << "Asset downloaded but I dont know about it !? " << d.url;
 		}
 	}
 }

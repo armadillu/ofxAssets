@@ -134,7 +134,7 @@ void AssetChecker::onAssetCheckThreadFinished() {
 	mutex.lock();
 	numThreadsCompleted++;
 	if (numThreadsCompleted == threads.size()) {
-		ofLogNotice("AssetChecker") << "All AssetCheck Thread sFinished (" << numThreadsCompleted << ")";
+		ofLogNotice("AssetChecker") << "All AssetCheck Threads Finished (" << numThreadsCompleted << ")";
 	}
 	mutex.unlock();
 }
