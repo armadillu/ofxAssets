@@ -184,7 +184,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 				ofLogError("AssetHolder") << "Asset downloaded but SHA1 missmatch! [" << d.url << "] expected SHA1: " << d.sha1;
 			}
 		}else{
-			ofLogError("AssetHolder") << "Asset downloaded but I dont know about it !? " << d.url;
+			ofLogError("AssetHolder") << "Asset downloaded but I dont know about it !? " << r.url;
 		}
 	}
 }
