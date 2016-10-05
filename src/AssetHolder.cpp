@@ -15,9 +15,10 @@ using namespace ofxAssets;
 
 
 //create empty objects to be able to return references on bogus calls
-ofxAssets::Descriptor AssetHolder::emptyAsset = ofxAssets::Descriptor();
-ofxAssets::UserInfo AssetHolder::emptyUserInfo = ofxAssets::UserInfo();
+ofxAssets::Descriptor AssetHolder::emptyAsset;
+ofxAssets::UserInfo AssetHolder::emptyUserInfo;
 int AssetHolder::minimumFileSize = 1024;
+ofMutex AssetHolder::assetMutex;
 
 AssetHolder::AssetHolder(){
 	isSetup = false;
@@ -25,15 +26,17 @@ AssetHolder::AssetHolder(){
 }
 
 
-void AssetHolder::setup(const string& directoryForAssets_, ofxAssets::UsagePolicy assetOkPolicy_,
-						ofxAssets::DownloadPolicy downloadPolicy_){
+void AssetHolder::setup(const string& directoryForAssets_, const ofxAssets::UsagePolicy & assetOkPolicy_,
+						const ofxAssets::DownloadPolicy & downloadPolicy_){
 	isSetup = true;
 	directoryForAssets = ofFilePath::addTrailingSlash(directoryForAssets_);
 	assetOkPolicy = assetOkPolicy_;
 	downloadPolicy = downloadPolicy_;
 
+	assetMutex.lock(); //ofSetLogLevel is not thread safe!
 	ofSetLogLevel("ofxBatchDownloader", OF_LOG_SILENT);
 	ofSetLogLevel("ofxSimpleHttp", OF_LOG_SILENT);
+	assetMutex.unlock();
 }
 
 

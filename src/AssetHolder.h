@@ -37,8 +37,8 @@ public:
 
 	//tell me when to download things that exists locally and when not to
 	void setup(const string& directoryForAssets,
-			   ofxAssets::UsagePolicy assetOkPolicy,
-			   ofxAssets::DownloadPolicy downloadPolicy);
+			   const ofxAssets::UsagePolicy & assetOkPolicy,
+			   const ofxAssets::DownloadPolicy & downloadPolicy);
 
 	//for all assets in the app
 	static void setMinimumFileSize(int numBytes){minimumFileSize = numBytes;}
@@ -137,6 +137,8 @@ private:
 	static ofxAssets::Descriptor emptyAsset;
 	static ofxAssets::UserInfo emptyUserInfo;
 	static int minimumFileSize;
+	static ofMutex assetMutex;
+	
 };
 
 #endif
