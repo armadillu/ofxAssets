@@ -24,12 +24,11 @@ using std::tr1::unordered_map;
 
 
 #define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return "error!";}
-const string assetLogFile = "logs/assetStatus.log";
-
-
 
 //make your object subclass AssetHolder, to handle gathering of remote assets.
 class AssetHolder{
+
+	const string assetLogFile = "logs/assetStatus.log";
 
 public:
 
