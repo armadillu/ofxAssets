@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef _AssetHolder_h
-#define _AssetHolder_h
+#pragma once 
 
 #if __cplusplus>=201103L || defined(_MSC_VER)
 #include <unordered_map>
@@ -139,5 +138,3 @@ private:
 	static ofMutex assetMutex;
 	
 };
-
-#endif
