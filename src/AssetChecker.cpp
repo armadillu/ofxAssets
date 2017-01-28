@@ -21,6 +21,11 @@ void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObje
 
 void AssetCheckThread::threadedFunction(){
 
+	#ifdef TARGET_WIN32
+	#else
+	pthread_setname_np("AssetCheckThread");
+	#endif
+
 	for(int i = 0; i < assetObjects.size(); i++){
 		assetObjects[i]->updateLocalAssetsStatus();
 		progress = i / float(assetObjects.size() - 1);
