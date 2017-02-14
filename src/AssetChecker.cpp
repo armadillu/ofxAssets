@@ -22,6 +22,8 @@ void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObje
 void AssetCheckThread::threadedFunction(){
 
 	#ifdef TARGET_WIN32
+	#elif defined(TARGET_LINUX)
+	pthread_setname_np(pthread_self(), "AssetCheckThread");
 	#else
 	pthread_setname_np("AssetCheckThread");
 	#endif
