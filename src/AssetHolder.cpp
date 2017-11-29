@@ -179,6 +179,8 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 			if(d.status.downloadOK){
 				d.status.localFileExists = true;
 				d.status.fileTooSmall = r.downloadedBytes < minimumFileSize;
+			}else{
+				ofLogError("AssetHolder") << "Asset download KO! \"" << r.reasonForStatus << "\"";
 			}
 			if (r.expectedChecksum == d.sha1 && r.checksumOK){
 				d.status.sha1Match = true;
