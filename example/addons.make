@@ -1,0 +1,4 @@
+ofxPoco
+ofxSimpleHttp
+ofxTagSystem
+ofxThreadSafeLog
