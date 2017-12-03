@@ -1,3 +1,4 @@
+ofxAssets
 ofxPoco
 ofxSimpleHttp
 ofxTagSystem
