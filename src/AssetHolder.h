@@ -95,7 +95,7 @@ public:
 
 	//assets that need to be downloaded
 	vector<ofxAssets::Descriptor> getMissingAssets();
-	vector<ofxAssets::Descriptor> getAllAssetsInDB(); //not in add order! :(
+	vector<ofxAssets::Descriptor> getAllAssetsInDB();
 
 	//its up to you to fill in data structures? TODO!
 	//unordered_map<string, AssetDescriptor>& getAssetsMap(){return assets;}

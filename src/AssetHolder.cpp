@@ -290,3 +290,14 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 	}
 	return vector<string>();
 }
+
+vector<ofxAssets::Descriptor> AssetHolder::getAllAssetsInDB(){
+
+	vector<ofxAssets::Descriptor> allAssets;
+	for(auto & it : assetAddOrder){
+		string assetPath = it.second;
+		allAssets.push_back(assets[assetPath]);
+	}
+
+	return allAssets;
+}
