@@ -10,8 +10,8 @@
 #define __BaseApp__AssetChecker__
 
 #include "ofMain.h"
-#include "AssetHolder.h"
-#include "Poco/Environment.h"
+
+class AssetHolder;
 
 class AssetCheckThread : public ofThread{
 
@@ -40,7 +40,7 @@ public:
 	
 	AssetChecker();
 
-	void checkAssets(vector<AssetHolder*> assetObjects, int numThreads = Poco::Environment::processorCount());
+	void checkAssets(vector<AssetHolder*> assetObjects, int numThreads = std::thread::hardware_concurrency());
 	void update();
 	float getProgress();
 	vector<float> getPerThreadProgress();

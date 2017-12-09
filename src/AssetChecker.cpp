@@ -7,6 +7,7 @@
 //
 
 #include "AssetChecker.h"
+#include "AssetHolder.h"
 
 
 void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObjects_){
