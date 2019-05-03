@@ -107,11 +107,11 @@ string AssetHolder::toString(ofxAssets::Stats &s){
 
 	string msg = "NumAssets: " + ofToString(s.numAssets) +
 	" NumMissingLocalFile: " + ofToString(s.numMissingFile) +
-	" numSha1Missmatch: " + ofToString(s.numSha1Missmatch) +
+	" numChecksumMissmatch: " + ofToString(s.numChecksumMissmatch) +
 	" NumFileTooSmall: " + ofToString(s.numFileTooSmall) +
 	" NumOK: " + ofToString(s.numOK) +
 	" NumDownloadFailed: " + ofToString(s.numDownloadFailed) +
-	" NumNoSha1Supplied: " + ofToString(s.numNoSha1Supplied);
+	" numNoChecksumSupplied: " + ofToString(s.numNoChecksumSupplied);
 	return msg;
 }
 
@@ -170,10 +170,10 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 	//lets see if we should download this asset
 	if(d.status.checked){
 		if(assetOkPolicy.fileMissing && !d.status.localFileExists) return true;
-		if(assetOkPolicy.fileExistsAndNoSha1Provided && !d.status.sha1Supplied) return true;
-		if(assetOkPolicy.fileExistsAndProvidedSha1Missmatch && !d.status.sha1Match) return true;
-		if(assetOkPolicy.fileExistsAndProvidedSha1Match && !d.status.sha1Match) return true;
-		if(!d.status.sha1Match){ //if we have a sha1 match - file size is irrelevant so no more tests to run
+		if(assetOkPolicy.fileExistsAndNoChecksumProvided && !d.status.checksumSupplied) return true;
+		if(assetOkPolicy.fileExistsAndProvidedChecksumMissmatch && !d.status.checksumMatch) return true;
+		if(assetOkPolicy.fileExistsAndProvidedChecksumMatch && !d.status.checksumMatch) return true;
+		if(!d.status.checksumMatch){ //if we have a sha1 match - file size is irrelevant so no more tests to run
 			if(assetOkPolicy.fileTooSmall && d.status.fileTooSmall) return true;
 		}
 
@@ -190,13 +190,13 @@ bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
 	//lets see if we should use this asset
 	if(d.status.checked){
 		bool useIf_exists = (d.status.localFileExists || assetOkPolicy.fileMissing);
-		bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoSha1Provided || d.status.sha1Supplied);
+		bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoChecksumProvided || d.status.checksumSupplied);
 
 		bool useIf_sha1;
-		if(assetOkPolicy.fileExistsAndProvidedSha1Match){
-			useIf_sha1 = d.status.sha1Match;
+		if(assetOkPolicy.fileExistsAndProvidedChecksumMatch){
+			useIf_sha1 = d.status.checksumMatch;
 		}else{
-			useIf_sha1 = d.status.sha1Match || assetOkPolicy.fileExistsAndProvidedSha1Missmatch;
+			useIf_sha1 = d.status.checksumMatch || assetOkPolicy.fileExistsAndProvidedChecksumMissmatch;
 		}
 		bool useIf_tooSmall;
 		if(!d.status.fileTooSmall){

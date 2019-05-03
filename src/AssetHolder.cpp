@@ -7,7 +7,6 @@
 //
 
 #include "AssetHolder.h"
-#include "ofxChecksum.h"
 #include "ofxThreadSafeLog.h"
 #include "AssetHolderStructs.h"
 
@@ -41,7 +40,8 @@ void AssetHolder::setup(const string& directoryForAssets_, const ofxAssets::Usag
 
 
 string AssetHolder::addRemoteAsset(const string& url,
-								   const string& sha1,
+								   const string& checksum,
+								   const ofxChecksum::Type checksumType,
 								   const vector<string>& tags,
 								   ofxAssets::Specs spec,
 								   ofxAssets::Type type){
@@ -63,8 +63,9 @@ string AssetHolder::addRemoteAsset(const string& url,
 			ad.type = type;
 		}
 		ad.url = url;
-		ad.sha1 = sha1;
-		if(sha1.size()) ad.status.sha1Supplied = true;
+		ad.checksum = checksum;
+		ad.checksumType = checksumType;
+		if(checksum.size()) ad.status.checksumSupplied = true;
 		assetAddOrder[assetAddOrder.size()] = ad.relativePath;
 		assets[ad.relativePath] = ad;
 		for(auto & tag : tags){
@@ -149,11 +150,11 @@ ofxAssets::Stats AssetHolder::getAssetStats(){
 		ofxAssets::Descriptor & ad = it->second;
 		if(ad.status.checked){
 			if(ad.status.fileTooSmall) s.numFileTooSmall++;
-			if(ad.status.sha1Match) s.numOK++;
+			if(ad.status.checksumMatch) s.numOK++;
 			if(ad.status.downloaded && !ad.status.downloadOK) s.numDownloadFailed++;
-			if(!ad.status.sha1Supplied) s.numNoSha1Supplied++;
+			if(!ad.status.checksumSupplied) s.numNoChecksumSupplied++;
 			if(!ad.status.localFileExists) s.numMissingFile++;
-			if(ad.status.downloaded && !ad.status.sha1Match) s.numSha1Missmatch++;
+			if(ad.status.downloaded && !ad.status.checksumMatch) s.numChecksumMissmatch++;
 		}else{
 			ofLogError("AssetHolder") << "Requesting AssetsStats before calling updateLocalAssetsStatus()! dont do that!";
 		}
@@ -182,11 +183,16 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 			}else{
 				ofLogError("AssetHolder") << "Asset download KO! \"" << r.reasonForStatus << "\"";
 			}
-			if (r.expectedChecksum == d.sha1 && r.checksumOK){
-				d.status.sha1Match = true;
+			if(r.checksumType == d.checksumType){
+				if (r.expectedChecksum == d.checksum && r.checksumOK){
+					d.status.checksumMatch = true;
+				}else{
+					d.status.checksumMatch = false;
+					ofLogError("AssetHolder") << "Asset downloaded but checksum missmatch! [" << d.url << "] expected checksum: " << d.checksum;
+				}
 			}else{
-				d.status.sha1Match = false;
-				ofLogError("AssetHolder") << "Asset downloaded but SHA1 missmatch! [" << d.url << "] expected SHA1: " << d.sha1;
+				ofLogError("AssetHolder") << "Asset downloaded but checksum type missmatch! Make sure checksum types match!";
+				d.status.checksumMatch = false;
 			}
 		}else{
 			ofLogError("AssetHolder") << "Asset downloaded but I dont know about it !? " << r.url;
@@ -219,24 +225,30 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 
 		d.status.localFileExists = true;
 
-		if (d.hasSha1()){
-			d.status.sha1Supplied = true;
-			d.status.localFileSha1Checked = true;
-			d.status.sha1Match = ofxChecksum::sha1(d.relativePath, d.sha1, false/*verbose*/);
+		if (d.hasChecksum()){
+			d.status.checksumSupplied = true;
+			d.status.localFileChecksumChecked = true;
 
-			if (d.status.sha1Match){
-				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' EXISTS and SHA1 OK 😄");
+			if(d.checksumType == ofxChecksum::Type::SHA1){
+				d.status.checksumMatch = ofxChecksum::sha1(d.relativePath, d.checksum, false/*verbose*/);
+			}else{ //for now only two types, so it must be xxHash
+				auto sum = ofxChecksum::xxHash(d.relativePath);
+				d.status.checksumMatch = sum == d.checksum;
+			}
+
+			if (d.status.checksumMatch){
+				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' EXISTS and Checksum OK 😄");
 			}else{
 				if (f.getSize() < minimumFileSize){
 					d.status.fileTooSmall = true;
 					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 				}else{
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (sha1 missmatch) 💩 " + d.sha1);
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum missmatch) 💩 " + d.checksum);
 				}
 			}
 		}else{ //no sha1 supplied!
-			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' (sha1 not supplied) 🌚");
-			d.status.sha1Supplied = false;
+			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' (Checksum not supplied) 🌚");
+			d.status.checksumSupplied = false;
 			if (f.getSize() < minimumFileSize){
 				d.status.fileTooSmall = true;
 				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
@@ -258,7 +270,7 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 	if(!isDownloadingData){
 
 		vector<string> urls;
-		vector<string> sha1s;
+		vector<string> checksums; //
 
 		unordered_map<string, ofxAssets::Descriptor>::iterator it = assets.begin();
 
@@ -269,7 +281,7 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 			if(d.location == REMOTE){
 				if(shouldDownload(d)){
 					urls.push_back(d.url);
-					sha1s.push_back(d.sha1);
+					checksums.push_back(d.checksum);
 				}
 			}
 			++it;
@@ -277,7 +289,7 @@ vector<string> AssetHolder::downloadMissingAssets(ofxDownloadCentral& downloader
 
 		if(urls.size()){
 			downloader.downloadResources(urls,								//list of urls
-										 sha1s,								//matching list of sha1s TODO!
+										 checksums,								//matching list of checksums
 										 this,								//who will get notified
 										 &AssetHolder::downloadsFinished,	//callback
 										 directoryForAssets					//where to download the assets

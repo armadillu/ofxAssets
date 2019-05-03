@@ -9,6 +9,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxChecksum.h"
 
 //make your object subclass AssetHolder, to handle gathering of remote assets.
 namespace ofxAssets{
@@ -30,19 +31,11 @@ namespace ofxAssets{
 		TYPE_UNKNOWN
 	};
 
-	enum State{ //hmmm
-		NOT_CHECKED,
-		LOCAL_FILE_EXISTS_OK,
-		LOCAL_FILE_EXISTS_BAD_SHA1,
-		LOCAL_FILE_EXISTS_NO_SHA1,
-		LOCAL_FILE_MISSING		
-	};
-
 	struct Policy{
 		bool fileMissing;
-		bool fileExistsAndNoSha1Provided;
-		bool fileExistsAndProvidedSha1Missmatch;
-		bool fileExistsAndProvidedSha1Match;
+		bool fileExistsAndNoChecksumProvided;
+		bool fileExistsAndProvidedChecksumMissmatch;
+		bool fileExistsAndProvidedChecksumMatch;
 		bool fileTooSmall; //regardless of sha1
 	};
 
@@ -50,9 +43,9 @@ namespace ofxAssets{
 		UsagePolicy(){
 			fileMissing = false;
 			fileTooSmall = false;
-			fileExistsAndNoSha1Provided = true;
-			fileExistsAndProvidedSha1Missmatch = false;
-			fileExistsAndProvidedSha1Match = true;
+			fileExistsAndNoChecksumProvided = true;
+			fileExistsAndProvidedChecksumMissmatch = false;
+			fileExistsAndProvidedChecksumMatch = true;
 		}
 	};
 
@@ -60,9 +53,9 @@ namespace ofxAssets{
 		DownloadPolicy(){
 			fileMissing = true;
 			fileTooSmall = true;
-			fileExistsAndNoSha1Provided = true;
-			fileExistsAndProvidedSha1Missmatch = true;
-			fileExistsAndProvidedSha1Match = false;
+			fileExistsAndNoChecksumProvided = true;
+			fileExistsAndProvidedChecksumMissmatch = true;
+			fileExistsAndProvidedChecksumMatch = false;
 		}
 	};
 
@@ -83,14 +76,14 @@ namespace ofxAssets{
 	struct Stats{
 		int numAssets;
 		int numMissingFile;
-		int numSha1Missmatch;
+		int numChecksumMissmatch;
 		int numFileTooSmall;
 		int numOK;
 		int numDownloadFailed;
-		int numNoSha1Supplied;
+		int numNoChecksumSupplied;
 		Stats(){
-			numAssets = numMissingFile = numSha1Missmatch = numOK = 0;
-			numDownloadFailed = numFileTooSmall = numNoSha1Supplied = 0;
+			numAssets = numMissingFile = numChecksumMissmatch = numOK = 0;
+			numDownloadFailed = numFileTooSmall = numNoChecksumSupplied = 0;
 		}
 	};
 
@@ -114,9 +107,9 @@ namespace ofxAssets{
 
 	struct LocalAssetStatus{
 		bool localFileExists;
-		bool sha1Supplied;
-		bool localFileSha1Checked;
-		bool sha1Match;
+		bool checksumSupplied;
+		bool localFileChecksumChecked;
+		bool checksumMatch;
 		bool fileTooSmall;
 
 		bool checked; //if checkLocalAssetStatus() was run for that asset
@@ -124,8 +117,8 @@ namespace ofxAssets{
 		bool downloadOK;
 
 		LocalAssetStatus(){
-			localFileSha1Checked = localFileExists = sha1Match = false;
-			downloaded = downloadOK = fileTooSmall = sha1Supplied = checked = false;
+			localFileChecksumChecked = localFileExists = checksumMatch = false;
+			downloaded = downloadOK = fileTooSmall = checksumSupplied = checked = false;
 		}
 	};
 
@@ -136,7 +129,9 @@ namespace ofxAssets{
 		string relativePath; //this is the "unique key" of all assets, must be unique per asset
 
 		string url;
-		string sha1;
+
+		string checksum;
+		ofxChecksum::Type checksumType;
 
 		Type type;
 		Location location;
@@ -149,6 +144,6 @@ namespace ofxAssets{
 			location = UNKNOWN_LOCATION;
 		}
 
-		bool hasSha1(){return sha1.size() > 0;}
+		bool hasChecksum(){return checksum.size() > 0;}
 	};
 }

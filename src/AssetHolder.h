@@ -20,6 +20,7 @@ using std::tr1::unordered_map;
 #include "ofxDownloadCentral.h"
 #include "AssetHolderStructs.h"
 #include "TagManager.h"
+#include "ofxChecksum.h"
 
 
 #define ASSET_HOLDER_SETUP_CHECK  if(!isSetup){ofLogError("Cant do! AssetHolder not setup!"); return "error!";}
@@ -46,7 +47,8 @@ public:
 	//when you add an asset, ofxAsset will try its best to tag it according to file extension
 	//you can "tag" each asset to get it back later (ie "primaryImage", "sizeLarge", "sizeSmall")
 	string addRemoteAsset(const string& url,
-						  const string& sha1,
+						  const string& checksum, //sha1, xxhash, etc
+						  const ofxChecksum::Type checksumType, //type of checksum supplied above
 						  const vector<string>& tags = vector<string>(),
 						  ofxAssets::Specs spec = ofxAssets::Specs(),
 						  ofxAssets::Type type = ofxAssets::TYPE_UNKNOWN
