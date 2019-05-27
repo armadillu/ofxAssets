@@ -181,7 +181,7 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 				d.status.localFileExists = true;
 				d.status.fileTooSmall = r.downloadedBytes < minimumFileSize;
 			}else{
-				ofLogError("AssetHolder") << "Asset download KO! \"" << r.reasonForStatus << "\"";
+				ofLogError("AssetHolder") << "Asset download KO! \"" << r.reasonForStatus << "\" \"" << r.url << "\"";
 			}
 			if(r.checksumType == d.checksumType){
 				if (r.expectedChecksum == d.checksum && r.checksumOK){
