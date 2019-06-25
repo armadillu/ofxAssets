@@ -188,10 +188,10 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 					d.status.checksumMatch = true;
 				}else{
 					d.status.checksumMatch = false;
-					ofLogError("AssetHolder") << "Asset downloaded but checksum missmatch! [" << d.url << "] expected checksum: " << d.checksum;
+					ofLogError("AssetHolder") << "Asset downloaded but checksum mismatch! [" << d.url << "] expected checksum: \"" << d.checksum << "\" but got \"" << r.calculatedChecksum << "\" instead";
 				}
 			}else{
-				ofLogError("AssetHolder") << "Asset downloaded but checksum type missmatch! Make sure checksum types match!";
+				ofLogError("AssetHolder") << "Asset downloaded but checksum type mismatch! Make sure checksum types match!";
 				d.status.checksumMatch = false;
 			}
 		}else{
@@ -243,7 +243,7 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 					d.status.fileTooSmall = true;
 					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 				}else{
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum missmatch) 💩 " + d.checksum);
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum mismatch) 💩 " + d.checksum);
 				}
 			}
 		}else{ //no sha1 supplied!
