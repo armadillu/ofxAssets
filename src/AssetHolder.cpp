@@ -243,7 +243,7 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 					d.status.fileTooSmall = true;
 					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 				}else{
-					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum mismatch) 💩 " + d.checksum);
+					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum mismatch) 💩 expected \"" + d.checksum + "\"");
 				}
 			}
 		}else{ //no sha1 supplied!
