@@ -33,8 +33,10 @@ void AssetHolder::setup(const string& directoryForAssets_, const ofxAssets::Usag
 	downloadPolicy = downloadPolicy_;
 
 	assetMutex.lock(); //ofSetLogLevel is not thread safe!
-	ofSetLogLevel("ofxBatchDownloader", OF_LOG_SILENT);
-	ofSetLogLevel("ofxSimpleHttp", OF_LOG_SILENT);
+//	oldSimpleHttpLevel = ofGetLogLevel("ofxSimpleHttp");
+//	oldBatchDownloaderLevel = ofGetLogLevel("ofxBatchDownloader");
+//	ofSetLogLevel("ofxBatchDownloader", OF_LOG_SILENT);
+//	ofSetLogLevel("ofxSimpleHttp", OF_LOG_SILENT);
 	assetMutex.unlock();
 }
 
@@ -198,6 +200,8 @@ void AssetHolder::downloadsFinished(ofxBatchDownloaderReport & report){
 			ofLogError("AssetHolder") << "Asset downloaded but I dont know about it !? " << r.url;
 		}
 	}
+//	ofSetLogLevel("ofxBatchDownloader", oldBatchDownloaderLevel);
+//	ofSetLogLevel("ofxSimpleHttp", oldSimpleHttpLevel);
 }
 
 

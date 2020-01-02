@@ -138,5 +138,8 @@ private:
 	static ofxAssets::UserInfo emptyUserInfo;
 	static int minimumFileSize;
 	static ofMutex assetMutex;
+
+//	ofLogLevel oldSimpleHttpLevel;
+//	ofLogLevel oldBatchDownloaderLevel;
 	
 };
