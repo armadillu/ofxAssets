@@ -169,12 +169,12 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 	bool shouldDownload = false;
 	//lets see if we should download this asset
 	if(d.status.checked){
-		if(assetOkPolicy.fileMissing && !d.status.localFileExists) return true;
-		if(assetOkPolicy.fileExistsAndNoChecksumProvided && !d.status.checksumSupplied) return true;
-		if(assetOkPolicy.fileExistsAndProvidedChecksumMissmatch && !d.status.checksumMatch) return true;
-		if(assetOkPolicy.fileExistsAndProvidedChecksumMatch && !d.status.checksumMatch) return true;
-		if(!d.status.checksumMatch){ //if we have a sha1 match - file size is irrelevant so no more tests to run
-			if(assetOkPolicy.fileTooSmall && d.status.fileTooSmall) return true;
+		if(downloadPolicy.fileMissing && !d.status.localFileExists) return true;
+		if(downloadPolicy.fileExistsAndNoChecksumProvided && !d.status.checksumSupplied) return true;
+		if(downloadPolicy.fileExistsAndProvidedChecksumMissmatch && d.status.checksumSupplied && !d.status.checksumMatch) return true;
+		if(downloadPolicy.fileExistsAndProvidedChecksumMatch && d.status.checksumSupplied && !d.status.checksumMatch) return true;
+		if(!d.status.checksumMatch && d.status.checksumSupplied){ //if we have a sha1 match - file size is irrelevant so no more tests to run
+			if(downloadPolicy.fileTooSmall && d.status.fileTooSmall) return true;
 		}
 
 	}else{

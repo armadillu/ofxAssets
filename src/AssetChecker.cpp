@@ -31,7 +31,7 @@ void AssetCheckThread::threadedFunction(){
 
 	for(int i = 0; i < assetObjects.size(); i++){
 		assetObjects[i]->updateLocalAssetsStatus();
-		progress = i / float(assetObjects.size() - 1);
+		progress = i / float(assetObjects.size());
 	}
 	ofNotifyEvent(eventFinishedCheckingAssets, this);
 	ofSleepMillis(16);
