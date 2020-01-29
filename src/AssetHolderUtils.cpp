@@ -189,23 +189,42 @@ bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
 
 	//lets see if we should use this asset
 	if(d.status.checked){
-		bool useIf_exists = (d.status.localFileExists || assetOkPolicy.fileMissing);
-		bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoChecksumProvided || d.status.checksumSupplied);
 
-		bool useIf_sha1;
-		if(assetOkPolicy.fileExistsAndProvidedChecksumMatch){
-			useIf_sha1 = d.status.checksumMatch;
-		}else{
-			useIf_sha1 = d.status.checksumMatch || assetOkPolicy.fileExistsAndProvidedChecksumMissmatch;
-		}
-		bool useIf_tooSmall;
-		if(!d.status.fileTooSmall){
-			useIf_tooSmall = true;
-		}else{ //too small!
-			useIf_tooSmall = assetOkPolicy.fileTooSmall;
+
+		if(!d.status.checksumSupplied){ //no checksum is used
+
+			bool checksumOK = d.status.checksumMatch;
+			if(assetOkPolicy.fileExistsAndNoChecksumProvided) checksumOK = true;
+
+			bool fileSizeOK = !d.status.fileTooSmall;
+			if(assetOkPolicy.fileTooSmall) fileSizeOK = true;
+
+			bool fileExistsOK = d.status.localFileExists;
+			if(assetOkPolicy.fileMissing) fileExistsOK = true;
+
+			isOKtoUse == fileSizeOK && fileExistsOK && checksumOK;
+
+		}else{ //ckecksum is USED
+
+			bool useIf_exists = (d.status.localFileExists || assetOkPolicy.fileMissing);
+			bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoChecksumProvided || d.status.checksumSupplied);
+
+			bool useIf_sha1;
+			if(assetOkPolicy.fileExistsAndProvidedChecksumMatch){
+				useIf_sha1 = d.status.checksumMatch;
+			}else{
+				useIf_sha1 = d.status.checksumMatch || assetOkPolicy.fileExistsAndProvidedChecksumMissmatch;
+			}
+
+			bool useIf_tooSmall;
+			if(!d.status.fileTooSmall){
+				useIf_tooSmall = true;
+			}else{ //too small!
+				useIf_tooSmall = assetOkPolicy.fileTooSmall;
+			}
+			isOKtoUse = useIf_tooSmall && useIf_sha1 && useIf_sha1_exists && useIf_exists;
 		}
 
-		isOKtoUse = useIf_tooSmall && useIf_sha1 && useIf_sha1_exists && useIf_exists;
 	}else{
 		ofLogError("AssetHolder") << "cant decide wether to USE or not - havent checked for local files yet!";
 	}
