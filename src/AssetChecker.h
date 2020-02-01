@@ -17,7 +17,7 @@ class AssetCheckThread : public ofThread{
 
 public:
 
-	void checkAssetsInThread(const vector<AssetHolder*>& assetObjects);
+	void checkAssetsInThread(const vector<AssetHolder*>& assetObjects, ofMutex * mutex);
 
 	float getProgress(){return progress;}
 	ofEvent<void> eventFinishedCheckingAssets;
@@ -28,6 +28,7 @@ public:
 private:
 
 	float progress = 0;
+	ofMutex * myMutex = nullptr;
 	void threadedFunction();
 	vector<AssetHolder*> assetObjects;
 };

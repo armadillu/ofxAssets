@@ -10,10 +10,11 @@
 #include "AssetHolder.h"
 
 
-void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObjects_){
+void AssetCheckThread::checkAssetsInThread(const vector<AssetHolder*>& assetObjects_, ofMutex * mutex){
 	if(isThreadRunning()){
 		ofLogError("AssetCheckThread") << "thread already running!";
 	}
+	myMutex = mutex;
 	assetObjects = assetObjects_;
 	progress = 0;
 	startThread();
@@ -29,10 +30,15 @@ void AssetCheckThread::threadedFunction(){
 	pthread_setname_np("AssetCheckThread");
 	#endif
 
+//	myMutex->lock();
+//	ofLogNotice("AssetCheckThread") << "thread checking " << assetObjects.size() << " obj.";
+//	myMutex->unlock();
+
 	for(int i = 0; i < assetObjects.size(); i++){
 		assetObjects[i]->updateLocalAssetsStatus();
-		progress = i / float(assetObjects.size());
+		progress = (i + 1) / float(assetObjects.size());
 	}
+	progress = 1.0;
 	ofNotifyEvent(eventFinishedCheckingAssets, this);
 	ofSleepMillis(16);
 }
@@ -72,7 +78,8 @@ string AssetChecker::getDrawableState(){
 		msg += "\n\n";
 		vector<float> progress = getPerThreadProgress();
 		for(int i = 0; i < progress.size(); i++){
-			msg += "  Thread (" + ofToString(i) + "): " + ofToString(100 * progress[i], 1) +
+			char aux[4]; sprintf(aux, "%02d", i);
+			msg += "  Thread (" + string(aux) + "): " + ofToString(100 * progress[i], 1) +
 			"% done. (" + ofToString((int)threads[i]->getNumObjectsChecked()) + " of " +
 			ofToString((int)threads[i]->getNumObjectsToCheck()) + " Assets Checked)\n";
 		}
@@ -86,7 +93,7 @@ string AssetChecker::getDrawableState(){
 void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThreads){
 
 	assetObjects = assetObjects_;
-	int nPerThread = assetObjects.size() / numThreads;
+	float nPerThread = float(assetObjects.size()) / float(numThreads);
 	numThreadsCompleted = 0;
 	started = true;
 
@@ -110,12 +117,12 @@ void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThread
 		vector<AssetHolder*>::const_iterator last = assetObjects.begin() + end;
 		vector<AssetHolder*> objsForThisThread(first, last);
 
-		mutex.lock();
-		ofLogNotice("AssetChecker") << "Start CheckAssets Thread! (" << i << "/" << numThreads << ") - checking " << end - start << " objects";
-		mutex.unlock();
+		//mutex.lock();
+		ofLogNotice("AssetChecker") << "Start CheckAssets Thread! (" << i << "/" << numThreads << ") - checking objects " << start << " to " << end;
+		//mutex.unlock();
 
 		ofAddListener(t->eventFinishedCheckingAssets, this, &AssetChecker::onAssetCheckThreadFinished);
-		t->checkAssetsInThread(objsForThisThread);
+		t->checkAssetsInThread(objsForThisThread, &mutex);
 	}
 }
 
@@ -139,11 +146,11 @@ vector<float> AssetChecker::getPerThreadProgress(){
 
 
 void AssetChecker::onAssetCheckThreadFinished() {
-	mutex.lock();
+	//mutex.lock();
 	numThreadsCompleted++;
 	if (numThreadsCompleted == threads.size()) {
 		ofLogNotice("AssetChecker") << "All AssetCheck Threads Finished (" << numThreadsCompleted << ")";
 	}
-	mutex.unlock();
+	//mutex.unlock();
 }
 
