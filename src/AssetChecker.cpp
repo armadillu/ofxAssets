@@ -40,7 +40,7 @@ void AssetCheckThread::threadedFunction(){
 	}
 	progress = 1.0;
 	ofNotifyEvent(eventFinishedCheckingAssets, this);
-	ofSleepMillis(16);
+	ofSleepMillis(24);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,7 @@ void AssetCheckThread::threadedFunction(){
 void AssetChecker::update(){
 
 	if (started){
+		mutex.lock();
 		int numRunningThreads = 0;
 		for(int i = 0; i < threads.size(); i++){
 			if (threads[i]->isThreadRunning()){
@@ -62,13 +63,10 @@ void AssetChecker::update(){
 			started = false;
 			ofNotifyEvent(eventFinishedCheckingAllAssets, this);
 		}
+		mutex.unlock();
 	}
 }
 
-
-AssetChecker::AssetChecker(){
-	started = false;
-}
 
 string AssetChecker::getDrawableState(){
 
@@ -146,11 +144,11 @@ vector<float> AssetChecker::getPerThreadProgress(){
 
 
 void AssetChecker::onAssetCheckThreadFinished() {
-	//mutex.lock();
+	mutex.lock();
 	numThreadsCompleted++;
 	if (numThreadsCompleted == threads.size()) {
 		ofLogNotice("AssetChecker") << "All AssetCheck Threads Finished (" << numThreadsCompleted << ")";
 	}
-	//mutex.unlock();
+	mutex.unlock();
 }
 

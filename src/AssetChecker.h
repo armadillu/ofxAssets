@@ -39,7 +39,7 @@ class AssetChecker{
 
 public:
 	
-	AssetChecker();
+	AssetChecker(){};
 
 	void checkAssets(vector<AssetHolder*> assetObjects, int numThreads = std::thread::hardware_concurrency());
 	void update();
@@ -48,17 +48,15 @@ public:
 
 	string getDrawableState();
 
-
 	//callback
 	void onAssetCheckThreadFinished();
-
 
 	ofEvent<void> eventFinishedCheckingAllAssets;
 
 protected:
 
-	bool started;
-	int numThreadsCompleted;
+	bool started = false;
+	int numThreadsCompleted = 0;
 	vector<AssetCheckThread*> threads;
 	vector<AssetHolder*> assetObjects;
 	ofMutex mutex;
