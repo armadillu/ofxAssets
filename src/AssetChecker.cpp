@@ -95,6 +95,11 @@ void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThread
 	numThreadsCompleted = 0;
 	started = true;
 
+	int numAssets = 0;
+	for(auto & obj : assetObjects){
+		numAssets += obj->getNumAssets();
+	}
+
 	for(int i = 0; i < numThreads; i++){
 
 		AssetCheckThread * t = new AssetCheckThread();
@@ -116,7 +121,7 @@ void AssetChecker::checkAssets(vector<AssetHolder*> assetObjects_, int numThread
 		vector<AssetHolder*> objsForThisThread(first, last);
 
 		//mutex.lock();
-		if(end - start > 0){
+		if(end - start > 0 && numAssets > 0){
 			ofLogNotice("AssetChecker") << "Start CheckAssets Thread! (" << i << "/" << numThreads << ") - checking objects " << start << " to " << end;
 		}
 		//mutex.unlock();
