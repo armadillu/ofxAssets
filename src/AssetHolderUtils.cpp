@@ -202,7 +202,7 @@ bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
 			bool fileExistsOK = d.status.localFileExists;
 			if(assetOkPolicy.fileMissing) fileExistsOK = true;
 
-			isOKtoUse == fileSizeOK && fileExistsOK && checksumOK;
+			isOKtoUse = fileSizeOK && fileExistsOK && checksumOK;
 
 		}else{ //ckecksum is USED
 
