@@ -112,7 +112,7 @@ protected:
 
 	//the actual assets
 	map<int, string> assetAddOrder;
-	unordered_map<string, ofxAssets::Descriptor> assets; 	//index by relativePath
+	std::unordered_map<string, ofxAssets::Descriptor> assets; 	//index by relativePath
 															//2 assets cant have the same path!
 
 	string directoryForAssets;

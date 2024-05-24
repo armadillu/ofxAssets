@@ -11,6 +11,7 @@
 #include "AssetHolderStructs.h"
 
 using namespace ofxAssets;
+using namespace std;
 
 
 //create empty objects to be able to return references on bogus calls
