@@ -36,7 +36,7 @@ namespace ofxAssets{
 		bool fileExistsAndNoChecksumProvided;
 		bool fileExistsAndProvidedChecksumMissmatch;
 		bool fileExistsAndProvidedChecksumMatch;
-		bool fileTooSmall; //regardless of sha1
+		bool fileTooSmall; //regardless of checksum (ie - we got a 404 html file)
 	};
 
 	struct UsagePolicy: public Policy{ //asset should be Used if...

@@ -33,12 +33,12 @@ void AssetHolder::setup(const string& directoryForAssets_, const ofxAssets::Usag
 	assetOkPolicy = assetOkPolicy_;
 	downloadPolicy = downloadPolicy_;
 
-	assetMutex.lock(); //ofSetLogLevel is not thread safe!
+//	assetMutex.lock(); //ofSetLogLevel is not thread safe!
 //	oldSimpleHttpLevel = ofGetLogLevel("ofxSimpleHttp");
 //	oldBatchDownloaderLevel = ofGetLogLevel("ofxBatchDownloader");
 //	ofSetLogLevel("ofxBatchDownloader", OF_LOG_SILENT);
 //	ofSetLogLevel("ofxSimpleHttp", OF_LOG_SILENT);
-	assetMutex.unlock();
+//	assetMutex.unlock();
 }
 
 
@@ -225,10 +225,15 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 	}
 	ofFile f;
 	f.open( d.relativePath );
+	d.status.checksumSupplied = d.hasChecksum();
+	d.status.localFileChecksumChecked = false;
+	d.status.checksumMatch = false;
+	d.status.fileTooSmall = false;
 
 	if(f.exists()){
 
 		d.status.localFileExists = true;
+		d.status.fileTooSmall = f.getSize() < minimumFileSize;
 
 		if (d.hasChecksum()){
 			d.status.checksumSupplied = true;
@@ -244,8 +249,7 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 			if (d.status.checksumMatch){
 				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' EXISTS and Checksum OK 😄");
 			}else{
-				if (f.getSize() < minimumFileSize){
-					d.status.fileTooSmall = true;
+				if (d.status.fileTooSmall){
 					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 				}else{
 					ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' CORRUPT! (Checksum mismatch) 💩 expected \"" + d.checksum + "\"");
@@ -254,8 +258,7 @@ void AssetHolder::checkLocalAssetStatus(ofxAssets::Descriptor & d){
 		}else{ //no sha1 supplied!
 			ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' (Checksum not supplied) 🌚");
 			d.status.checksumSupplied = false;
-			if (f.getSize() < minimumFileSize){
-				d.status.fileTooSmall = true;
+			if (d.status.fileTooSmall){
 				ofxThreadSafeLog::one()->append(assetLogFile, "'" + string(d.url) + "' file is empty!! 😨");
 			}
 		}

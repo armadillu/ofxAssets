@@ -170,10 +170,10 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 	//lets see if we should download this asset
 	if(d.status.checked){
 		if(downloadPolicy.fileMissing && !d.status.localFileExists) return true;
-		if(downloadPolicy.fileExistsAndNoChecksumProvided && !d.status.checksumSupplied) return true;
-		if(downloadPolicy.fileExistsAndProvidedChecksumMissmatch && d.status.checksumSupplied && !d.status.checksumMatch) return true;
-		if(downloadPolicy.fileExistsAndProvidedChecksumMatch && d.status.checksumSupplied && !d.status.checksumMatch) return true;
-		if(!d.status.checksumMatch && d.status.checksumSupplied){ //if we have a sha1 match - file size is irrelevant so no more tests to run
+		if(d.status.localFileExists){
+			if(downloadPolicy.fileExistsAndNoChecksumProvided && !d.status.checksumSupplied) return true;
+			if(downloadPolicy.fileExistsAndProvidedChecksumMissmatch && d.status.checksumSupplied && !d.status.checksumMatch) return true;
+			if(downloadPolicy.fileExistsAndProvidedChecksumMatch && d.status.checksumSupplied && d.status.checksumMatch) return true;
 			if(downloadPolicy.fileTooSmall && d.status.fileTooSmall) return true;
 		}
 
@@ -184,49 +184,14 @@ bool AssetHolder::shouldDownload(const ofxAssets::Descriptor &d){
 }
 
 bool AssetHolder::isReadyToUse(const ofxAssets::Descriptor &d){
-
-	bool isOKtoUse = false;
-
-	//lets see if we should use this asset
-	if(d.status.checked){
-
-
-		if(!d.status.checksumSupplied){ //no checksum is used
-
-			bool checksumOK = d.status.checksumMatch;
-			if(assetOkPolicy.fileExistsAndNoChecksumProvided) checksumOK = true;
-
-			bool fileSizeOK = !d.status.fileTooSmall;
-			if(assetOkPolicy.fileTooSmall) fileSizeOK = true;
-
-			bool fileExistsOK = d.status.localFileExists;
-			if(assetOkPolicy.fileMissing) fileExistsOK = true;
-
-			isOKtoUse = fileSizeOK && fileExistsOK && checksumOK;
-
-		}else{ //ckecksum is USED
-
-			bool useIf_exists = (d.status.localFileExists || assetOkPolicy.fileMissing);
-			bool useIf_sha1_exists = (assetOkPolicy.fileExistsAndNoChecksumProvided || d.status.checksumSupplied);
-
-			bool useIf_sha1;
-			if(assetOkPolicy.fileExistsAndProvidedChecksumMatch){
-				useIf_sha1 = d.status.checksumMatch;
-			}else{
-				useIf_sha1 = d.status.checksumMatch || assetOkPolicy.fileExistsAndProvidedChecksumMissmatch;
-			}
-
-			bool useIf_tooSmall;
-			if(!d.status.fileTooSmall){
-				useIf_tooSmall = true;
-			}else{ //too small!
-				useIf_tooSmall = assetOkPolicy.fileTooSmall;
-			}
-			isOKtoUse = useIf_tooSmall && useIf_sha1 && useIf_sha1_exists && useIf_exists;
-		}
-
-	}else{
+	if(!d.status.checked){
 		ofLogError("AssetHolder") << "cant decide wether to USE or not - havent checked for local files yet!";
+		return false;
 	}
-	return isOKtoUse;
+	if(!d.status.localFileExists) return assetOkPolicy.fileMissing;
+	if(d.status.fileTooSmall && !assetOkPolicy.fileTooSmall) return false;
+	if(!d.status.checksumSupplied) return assetOkPolicy.fileExistsAndNoChecksumProvided;
+	return d.status.checksumMatch
+		? assetOkPolicy.fileExistsAndProvidedChecksumMatch
+		: assetOkPolicy.fileExistsAndProvidedChecksumMissmatch;
 }
